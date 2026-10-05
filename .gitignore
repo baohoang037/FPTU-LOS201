@@ -1,0 +1,25 @@
+# Kernel sources & heavy build trees
+linux-*/
+kernel/linux-*/
+
+# Object & intermediate build files
+*.o
+*.ko.cmd
+*.mod
+*.mod.c
+*.mod.o
+*.order
+*.symvers
+.tmp_versions/
+
+# Temporary and swap files
+*~
+*.swp
+*.bak
+.DS_Store
+*.iso
+*.img
+
+# Keep driver binary and initramfs archive
+!lab2_driver.ko
+!*.cpio.gz

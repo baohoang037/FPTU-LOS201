@@ -1,0 +1,35 @@
+=== PHAN C: MTD Subsystem & JFFS2 File System Test Log ===
+
+[1] MTD Info:
+mtd1
+Name:                           NAND simulator partition 0
+Type:                           nand
+Eraseblock size:                16384 bytes, 16.0 KiB
+Amount of eraseblocks:          2048 (33554432 bytes, 32.0 MiB)
+Minimum input/output unit size: 512 bytes
+Sub-page size:                  256 bytes
+OOB size:                       16 bytes
+Character device major/minor:   90:2
+Bad blocks are allowed:         true
+Device is writable:             true
+
+[2] Flash Erase & NAND Write:
+Erasing 32768 Kibyte @ 0 -- 100 % complete 
+Writing data to block 0 at offset 0x0
+Written 30 blocks containing only 0xff bytes
+
+[3] Mount JFFS2 & Verify Original Files:
+- hello.txt: Hello from JFFS2!
+- info.txt: Embedded Linux Lab2
+- logs/boot.log: created successfully
+
+[4] Persistence Test (Write, Umount, Re-mount):
+Added runtime data to boot.log
+Created runtime.txt: New runtime file
+Umount and Re-mounted /dev/mtdblock1 to /mnt/jffs2
+Verified: boot.log and runtime.txt are fully intact!
+
+[5] Hexdump Magic Bytes:
+JFFS2 Magic Number verified: 0x85 0x19
+00000000  85 19 01 e0 31 00 00 00  1d d9 82 42 01 00 00 00
+Cleanup: unmounted and removed nandsim module successfully.

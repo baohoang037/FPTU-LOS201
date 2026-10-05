@@ -1,0 +1,11 @@
+[ LAB-02 ] Starting system initialization...
+[ LAB-02 ] Loading lab2_driver module...
+lab2_driver: loading out-of-tree module taints kernel.
+lab2_driver: initializing module
+lab2_driver: loaded, major=240
+[ LAB-02 ] lab2_driver loaded OK
+[ LAB-02 ] /dev/lab2 created (major=240, minor=0)
+[ LAB-02 ] System initialization complete!
+  -> Run test_driver.sh  to test character device
+  -> Run test_procfs.sh  to test proc/sysfs interfaces
+  -> cat /proc/lab2_info to view driver stats
