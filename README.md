@@ -133,7 +133,7 @@ lab01_kernel_boot/
         │   ├── bin/
         │   └── sbin/
         └── init   
-```text
+```
 
 ## 🔬 Lab 02: Writing Device Drivers & File System Management
 
