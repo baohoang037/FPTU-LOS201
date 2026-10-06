@@ -27,12 +27,12 @@ This repository contains all experimental deliverables, kernel source modificati
 ## 📂 Repository Structure
 
 * **`lab01_kernel_boot/`**: Linux Kernel Configuration & System Boot on ARMv7 Architecture.
- * `configs/`: Linux Kernel and BusyBox configuration files (`kernel.config`, `busybox.config`).
- * `rootfs/`: Minimal BusyBox-based initramfs root filesystem used for the ARMv7 Linux boot process.
+  * `configs/`: Linux Kernel and BusyBox configuration files (`kernel.config`, `busybox.config`).
+  * `rootfs/`: Minimal BusyBox-based initramfs root filesystem used for the ARMv7 Linux boot process.
     * `initramfs/`: Root filesystem containing system initialization scripts, runtime mount points, and BusyBox userspace directories.
-          * `etc/`: System initialization configuration including `inittab` and `init.d/rcS`.
-          * `dev/`, `proc/`, `sys/`: Device and virtual filesystem mount points used during system startup.
-          * `bin/`, `sbin/`, `usr/bin/`, `usr/sbin/`: Userspace executable directories.
+      * `etc/`: System initialization configuration including `inittab` and `init.d/rcS`.
+      * `dev/`, `proc/`, `sys/`: Device and virtual filesystem mount points used during system startup.
+      * `bin/`, `sbin/`, `usr/bin/`, `usr/sbin/`: Userspace executable directories.
   * `output/`: Generated boot artifacts including Linux kernel image (`zImage`), Device Tree Blob (`vexpress-v2p-ca9.dtb`), and compressed initramfs image (`initramfs.cpio.gz`).
   * `docs/`: Boot architecture diagrams, screenshots, and supporting documentation.
   * `report/`: Formal technical PDF laboratory report (`SE203740_Lab01_BaoCao.pdf`).
