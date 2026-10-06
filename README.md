@@ -34,7 +34,6 @@ This repository contains all experimental deliverables, kernel source modificati
       * `dev/`, `proc/`, `sys/`: Device and virtual filesystem mount points used during system startup.
       * `bin/`, `sbin/`, `usr/bin/`, `usr/sbin/`: Userspace executable directories.
   * `output/`: Generated boot artifacts including Linux kernel image (`zImage`), Device Tree Blob (`vexpress-v2p-ca9.dtb`), and compressed initramfs image (`initramfs.cpio.gz`).
-  * `docs/`: Boot architecture diagrams, screenshots, and supporting documentation.
   * `report/`: Formal technical PDF laboratory report (`SE203740_Lab01_BaoCao.pdf`).
 * **`lab02_device_driver/`**: Writing Character Device Drivers & Flash Filesystem Management.
   * `driver/`: Kernel module source (`lab2_driver.c`), `Makefile`, and compiled ARM binary (`lab2_driver.ko`).
@@ -104,10 +103,7 @@ The LAB 01 deliverables are organized as follows:
 lab01_kernel_boot/
 ├── configs/
 │   ├── kernel.config
-│   └── busybox.config
-│
-├── docs/
-│   └── boot_flow.png
+│   └── busybox.config  
 │
 ├── output/
 │   ├── zImage
