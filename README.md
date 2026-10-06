@@ -56,7 +56,8 @@ LAB 01 focuses on configuring, building, and booting an Embedded Linux system fo
 
 The complete boot flow consists of Linux Kernel configuration and cross-compilation, U-Boot bootloader preparation, BusyBox root filesystem construction, initramfs packaging, and final Linux system boot on QEMU.
 
-![Architecture Diagram](lab01_kernel_boot/docs/boot_flow.png)
+<img width="341" height="197" alt="image" src="https://github.com/user-attachments/assets/723a2bff-1f18-4bc8-b4ec-36f4b4209d71" />
+
 
 ### 2. Comprehensive Technical Highlights
 
