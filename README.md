@@ -104,10 +104,7 @@ The LAB 01 deliverables are organized as follows:
 lab01_kernel_boot/
 ├── configs/
 │   ├── kernel.config
-│   └── busybox.config
-│
-├── docs/
-│   └── boot_flow.png
+│   └── busybox.config  
 │
 ├── output/
 │   ├── zImage
