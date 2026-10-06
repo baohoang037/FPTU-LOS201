@@ -27,6 +27,15 @@ This repository contains all experimental deliverables, kernel source modificati
 ## 📂 Repository Structure
 
 * **`lab01_kernel_boot/`**: Linux Kernel Configuration & System Boot on ARMv7 Architecture.
+ * `configs/`: Linux Kernel and BusyBox configuration files (`kernel.config`, `busybox.config`).
+ * `rootfs/`: Minimal BusyBox-based initramfs root filesystem used for the ARMv7 Linux boot process.
+    * `initramfs/`: Root filesystem containing system initialization scripts, runtime mount points, and BusyBox userspace directories.
+          * `etc/`: System initialization configuration including `inittab` and `init.d/rcS`.
+          * `dev/`, `proc/`, `sys/`: Device and virtual filesystem mount points used during system startup.
+          * `bin/`, `sbin/`, `usr/bin/`, `usr/sbin/`: Userspace executable directories.
+  * `output/`: Generated boot artifacts including Linux kernel image (`zImage`), Device Tree Blob (`vexpress-v2p-ca9.dtb`), and compressed initramfs image (`initramfs.cpio.gz`).
+  * `docs/`: Boot architecture diagrams, screenshots, and supporting documentation.
+  * `report/`: Formal technical PDF laboratory report (`SE203740_Lab01_BaoCao.pdf`).
 * **`lab02_device_driver/`**: Writing Character Device Drivers & Flash Filesystem Management.
   * `driver/`: Kernel module source (`lab2_driver.c`), `Makefile`, and compiled ARM binary (`lab2_driver.ko`).
   * `rootfs/`: BusyBox initialization scripts (`inittab`, `rcS`) and userspace validation suites (`test_driver.sh`, `test_procfs.sh`).
@@ -39,6 +48,92 @@ This repository contains all experimental deliverables, kernel source modificati
 * **`.gitignore`**: High-performance Git filter excluding raw multi-gigabyte kernel build trees and object artifacts.
 
 ---
+## 🔬 Lab 01: Linux Kernel Configuration & System Boot on ARMv7
+
+### 1. Architectural Overview & System Flow
+
+LAB 01 focuses on configuring, building, and booting an Embedded Linux system for the ARMv7-A Cortex-A9 architecture using QEMU `vexpress-a9`.
+
+The complete boot flow consists of Linux Kernel configuration and cross-compilation, U-Boot bootloader preparation, BusyBox root filesystem construction, initramfs packaging, and final Linux system boot on QEMU.
+
+![Architecture Diagram](lab01_kernel_boot/docs/boot_flow.png)
+
+### 2. Comprehensive Technical Highlights
+
+* **Linux Kernel Configuration & Cross-Compilation:**
+  * Configured Linux Kernel `5.15.0 LTS` for the ARMv7-A Cortex-A9 platform.
+  * Used the `arm-linux-gnueabihf-` cross-compilation toolchain to build the kernel for ARM.
+  * Started from the `vexpress_defconfig` configuration for the QEMU Versatile Express platform.
+  * Enabled the required kernel features for initramfs support and the PL011 UART serial console.
+  * Generated the ARM kernel image `zImage` and the Device Tree Blob `vexpress-v2p-ca9.dtb`.
+
+* **U-Boot Bootloader:**
+  * Configured U-Boot for the `vexpress_ca9x4` platform.
+  * Built and executed U-Boot on the QEMU `vexpress-a9` machine.
+  * Inspected the U-Boot version, board information, and environment variables.
+  * Configured the Linux kernel boot arguments and `bootcmd` using the `bootz` command.
+
+* **BusyBox & Minimal Root Filesystem:**
+  * Built BusyBox as a statically linked ARMv7 userspace environment.
+  * Created a minimal initramfs root filesystem for the embedded Linux system.
+  * Prepared the required directory structure including `/bin`, `/sbin`, `/usr/bin`, `/usr/sbin`, `/dev`, `/proc`, `/sys`, `/tmp`, `/etc`, and `/lib`.
+  * Implemented `/init`, `/etc/inittab`, and `/etc/init.d/rcS` for system initialization.
+  * Configured the root filesystem to provide a minimal BusyBox-based userspace environment.
+
+* **Linux Boot & Initramfs Integration:**
+  * Packaged the BusyBox root filesystem into `initramfs.cpio.gz`.
+  * Booted the Linux kernel on QEMU `vexpress-a9` using the kernel image, Device Tree Blob, and initramfs.
+  * Configured the kernel command line with the `ttyAMA0` serial console and `/sbin/init`.
+  * Verified the transition from the Linux kernel to the BusyBox userspace shell.
+
+* **System Verification:**
+  * Verified the running kernel using `uname -a`.
+  * Inspected ARM CPU information through `/proc/cpuinfo`.
+  * Checked memory information through `/proc/meminfo`.
+  * Inspected available device nodes under `/dev`.
+  * Verified mounted filesystems using `mount`.
+  * Inspected running processes using `ps`.
+  * Verified available CPUs through `/sys/devices/system/cpu/possible`.
+
+### 3. Project Structure
+
+The LAB 01 deliverables are organized as follows:
+
+```text
+lab01_kernel_boot/
+├── configs/
+│   ├── kernel.config
+│   └── busybox.config
+│
+├── docs/
+│   └── boot_flow.png
+│
+├── output/
+│   ├── zImage
+│   ├── vexpress-v2p-ca9.dtb
+│   └── initramfs.cpio.gz
+│
+├── report/
+│   └── SE203740_Lab01_BaoCao.pdf
+│
+└── rootfs/
+    └── initramfs/
+        ├── bin/
+        ├── dev/
+        ├── etc/
+        │   ├── inittab
+        │   └── init.d/
+        │       └── rcS
+        ├── lib/
+        ├── proc/
+        ├── sbin/
+        ├── sys/
+        ├── tmp/
+        ├── usr/
+        │   ├── bin/
+        │   └── sbin/
+        └── init   
+```text
 
 ## 🔬 Lab 02: Writing Device Drivers & File System Management
 
