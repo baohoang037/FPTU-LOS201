@@ -35,7 +35,6 @@ static struct class *sms_class = NULL;
 static struct device *sms_device = NULL;
 static struct proc_dir_entry *proc_entry = NULL;
 
-/* Driver statistics and state */
 static uint32_t g_min_interval_ms = MIN_INTERVAL_MS;
 static uint64_t g_read_count = 0;
 static uint64_t g_last_read_ms = 0;
@@ -46,25 +45,29 @@ static int g_last_humid_scaled = 5000; /* 50.00 % */
 
 static DEFINE_MUTEX(sensor_lock);
 
-/* Helper to get time in milliseconds */
 static inline uint64_t get_current_time_ms(void)
 {
     return (uint64_t)ktime_to_ms(ktime_get());
 }
 
-/* File operations: open */
 static int sms_open(struct inode *inodep, struct file *filep)
 {
     return 0;
 }
 
-/* File operations: release */
 static int sms_release(struct inode *inodep, struct file *filep)
 {
     return 0;
 }
 
-/* File operations: read */
+static loff_t sms_llseek(struct file *file, loff_t offset, int whence)
+{
+    (void)offset;
+    (void)whence;
+    file->f_pos = 0;
+    return 0;
+}
+
 static ssize_t sms_read(struct file *filep, char __user *buffer, size_t len, loff_t *offset)
 {
     char kbuf[BUFFER_SIZE];
@@ -72,7 +75,6 @@ static ssize_t sms_read(struct file *filep, char __user *buffer, size_t len, lof
     uint64_t current_time_ms;
     uint32_t rand_t, rand_h;
 
-    /* Prevent repeated reads during a single open session (EOF handling) */
     if (*offset > 0)
         return 0;
 
@@ -81,13 +83,11 @@ static ssize_t sms_read(struct file *filep, char __user *buffer, size_t len, lof
 
     current_time_ms = get_current_time_ms();
 
-    /* Enforce minimum sampling interval */
     if (g_last_read_ms > 0 && (current_time_ms - g_last_read_ms) < g_min_interval_ms) {
         mutex_unlock(&sensor_lock);
         return -EAGAIN;
     }
 
-    /* Simulate temperature: 15.00 - 45.00 °C (scaled by 100) */
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 19, 0)
     rand_t = get_random_u32();
     rand_h = get_random_u32();
@@ -119,7 +119,6 @@ static ssize_t sms_read(struct file *filep, char __user *buffer, size_t len, lof
     return str_len;
 }
 
-/* File operations: unlocked_ioctl */
 static long sms_ioctl(struct file *filep, unsigned int cmd, unsigned long arg)
 {
     uint32_t new_interval;
@@ -135,7 +134,6 @@ static long sms_ioctl(struct file *filep, unsigned int cmd, unsigned long arg)
         mutex_lock(&sensor_lock);
         g_min_interval_ms = new_interval;
         mutex_unlock(&sensor_lock);
-        pr_info("sms_sensor: interval updated to %u ms\n", new_interval);
         break;
     default:
         return -ENOTTY;
@@ -144,7 +142,6 @@ static long sms_ioctl(struct file *filep, unsigned int cmd, unsigned long arg)
     return 0;
 }
 
-/* Procfs: read /proc/sms_stats */
 static ssize_t sms_proc_read(struct file *file, char __user *buf, size_t count, loff_t *ppos)
 {
     char kbuf[256];
@@ -185,6 +182,7 @@ static const struct file_operations sms_fops = {
     .open = sms_open,
     .release = sms_release,
     .read = sms_read,
+    .llseek = sms_llseek,
     .unlocked_ioctl = sms_ioctl,
 };
 
@@ -198,7 +196,6 @@ static const struct file_operations sms_proc_ops = {
 };
 #endif
 
-/* Module entry point */
 static int __init sms_driver_init(void)
 {
     int ret;
@@ -206,10 +203,7 @@ static int __init sms_driver_init(void)
     g_driver_start_time_sec = (uint64_t)ktime_get_seconds();
 
     ret = alloc_chrdev_region(&dev_number, 0, 1, DEVICE_NAME);
-    if (ret < 0) {
-        pr_err("sms_sensor: failed to allocate char dev region\n");
-        return ret;
-    }
+    if (ret < 0) return ret;
 
     cdev_init(&sms_cdev, &sms_fops);
     sms_cdev.owner = THIS_MODULE;
@@ -217,7 +211,6 @@ static int __init sms_driver_init(void)
     ret = cdev_add(&sms_cdev, dev_number, 1);
     if (ret < 0) {
         unregister_chrdev_region(dev_number, 1);
-        pr_err("sms_sensor: failed to add cdev\n");
         return ret;
     }
 
@@ -229,7 +222,6 @@ static int __init sms_driver_init(void)
     if (IS_ERR(sms_class)) {
         cdev_del(&sms_cdev);
         unregister_chrdev_region(dev_number, 1);
-        pr_err("sms_sensor: failed to create device class\n");
         return PTR_ERR(sms_class);
     }
 
@@ -238,7 +230,6 @@ static int __init sms_driver_init(void)
         class_destroy(sms_class);
         cdev_del(&sms_cdev);
         unregister_chrdev_region(dev_number, 1);
-        pr_err("sms_sensor: failed to create device\n");
         return PTR_ERR(sms_device);
     }
 
@@ -248,31 +239,19 @@ static int __init sms_driver_init(void)
         class_destroy(sms_class);
         cdev_del(&sms_cdev);
         unregister_chrdev_region(dev_number, 1);
-        pr_err("sms_sensor: failed to create /proc/%s\n", PROC_FILENAME);
         return -ENOMEM;
     }
 
-    pr_info("sms_sensor: driver loaded successfully, /dev/%s and /proc/%s created\n",
-            DEVICE_NAME, PROC_FILENAME);
     return 0;
 }
 
-/* Module exit point */
 static void __exit sms_driver_exit(void)
 {
-    if (proc_entry)
-        remove_proc_entry(PROC_FILENAME, NULL);
-
-    if (sms_device)
-        device_destroy(sms_class, dev_number);
-
-    if (sms_class)
-        class_destroy(sms_class);
-
+    if (proc_entry) remove_proc_entry(PROC_FILENAME, NULL);
+    if (sms_device) device_destroy(sms_class, dev_number);
+    if (sms_class) class_destroy(sms_class);
     cdev_del(&sms_cdev);
     unregister_chrdev_region(dev_number, 1);
-
-    pr_info("sms_sensor: driver unloaded successfully\n");
 }
 
 module_init(sms_driver_init);
