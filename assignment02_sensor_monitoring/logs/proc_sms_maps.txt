@@ -1,0 +1,29 @@
+5c06a8e4a000-5c06a8e4c000 r--p 00000000 08:04 2534516                    /home/bao/FPTU-LOS201/assignment02_sensor_monitoring/app/sms_app_x86
+5c06a8e4c000-5c06a8e4f000 r-xp 00002000 08:04 2534516                    /home/bao/FPTU-LOS201/assignment02_sensor_monitoring/app/sms_app_x86
+5c06a8e4f000-5c06a8e51000 r--p 00005000 08:04 2534516                    /home/bao/FPTU-LOS201/assignment02_sensor_monitoring/app/sms_app_x86
+5c06a8e51000-5c06a8e52000 r--p 00006000 08:04 2534516                    /home/bao/FPTU-LOS201/assignment02_sensor_monitoring/app/sms_app_x86
+5c06a8e52000-5c06a8e53000 rw-p 00007000 08:04 2534516                    /home/bao/FPTU-LOS201/assignment02_sensor_monitoring/app/sms_app_x86
+5c06c2ec2000-5c06c2ee4000 rw-p 00000000 00:00 0                          [heap]
+7d9b737ff000-7d9b74000000 rw-p 00000000 00:00 0 
+7d9b74000000-7d9b74021000 rw-p 00000000 00:00 0 
+7d9b74021000-7d9b78000000 ---p 00000000 00:00 0 
+7d9b7b7fd000-7d9b7d000000 rw-p 00000000 00:00 0 
+7d9b7d000000-7d9b7d028000 r--p 00000000 08:02 1834602                    /usr/lib/x86_64-linux-gnu/libc.so.6
+7d9b7d028000-7d9b7d1c0000 r-xp 00028000 08:02 1834602                    /usr/lib/x86_64-linux-gnu/libc.so.6
+7d9b7d1c0000-7d9b7d20e000 r--p 001c0000 08:02 1834602                    /usr/lib/x86_64-linux-gnu/libc.so.6
+7d9b7d20e000-7d9b7d212000 r--p 0020e000 08:02 1834602                    /usr/lib/x86_64-linux-gnu/libc.so.6
+7d9b7d212000-7d9b7d214000 rw-p 00212000 08:02 1834602                    /usr/lib/x86_64-linux-gnu/libc.so.6
+7d9b7d214000-7d9b7d221000 rw-p 00000000 00:00 0 
+7d9b7d27b000-7d9b7d27e000 rw-p 00000000 00:00 0 
+7d9b7d295000-7d9b7d297000 rw-p 00000000 00:00 0 
+7d9b7d297000-7d9b7d29b000 r--p 00000000 00:00 0                          [vvar]
+7d9b7d29b000-7d9b7d29d000 r--p 00000000 00:00 0                          [vvar_vclock]
+7d9b7d29d000-7d9b7d29f000 r-xp 00000000 00:00 0                          [vdso]
+7d9b7d29f000-7d9b7d2a0000 r--p 00000000 08:02 1834599                    /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2
+7d9b7d2a0000-7d9b7d2cf000 r-xp 00001000 08:02 1834599                    /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2
+7d9b7d2cf000-7d9b7d2da000 r--p 00030000 08:02 1834599                    /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2
+7d9b7d2da000-7d9b7d2dc000 r--p 0003b000 08:02 1834599                    /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2
+7d9b7d2dc000-7d9b7d2dd000 rw-p 0003d000 08:02 1834599                    /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2
+7d9b7d2dd000-7d9b7d2de000 rw-p 00000000 00:00 0 
+7ffc0b090000-7ffc0b0b1000 rw-p 00000000 00:00 0                          [stack]
+ffffffffff600000-ffffffffff601000 --xp 00000000 00:00 0                  [vsyscall]
