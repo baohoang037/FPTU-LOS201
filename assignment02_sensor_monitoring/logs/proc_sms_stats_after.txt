@@ -1,0 +1,5 @@
+read_count: 287
+last_temperature: 19.52
+last_humidity: 81.70
+driver_uptime_sec: 956
+min_interval_ms: 500
