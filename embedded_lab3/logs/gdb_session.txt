@@ -1,0 +1,17 @@
+=== LAB03: ARM GDB Debugging ===
+
+[1] Array out-of-bounds bug:
+arr[0] = 10
+arr[1] = 20
+arr[2] = 30
+arr[3] = 40
+arr[4] = 50
+arr[5] = 812441344
+
+[2] Use-after-free bug:
+Data: 
+
+[3] Integer overflow demonstration:
+2147483647 + 1 = -2147483648
+
+Program finished.

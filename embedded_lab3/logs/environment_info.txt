@@ -1,0 +1,12 @@
+===== DATE =====
+Thứ sáu, 09 Tháng 10 năm 2026 11:16:08 +07
+===== HOST KERNEL =====
+6.8.0-138-generic
+===== GDB =====
+GNU gdb (Ubuntu 12.1-0ubuntu1~22.04.2) 12.1
+===== VALGRIND =====
+valgrind-3.18.1
+===== PERF =====
+perf version 6.8.12
+===== GCC =====
+gcc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0
