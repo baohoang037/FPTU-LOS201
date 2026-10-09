@@ -49,11 +49,11 @@ This repository contains all experimental deliverables, kernel source modificati
   * `docs/`: Driver architecture diagrams and supporting documentation.
   * `report/`: Final technical report in PDF format (`Asgn01.pdf`).
 - **`assignment02_sensor_monitoring/`**: Real-Time Multi-Threaded Sensor Monitoring System (SMS).
-  * `driver/`: Kernel character device driver simulating environmental sensor hardware (`sms_sensor_driver.c`).
-  * `app/`: Multi-threaded POSIX real-time application source (`sms_app.c`, `circular_buffer.c`, worker threads).
-  * `logs/`: Profiling and tracing outputs (`valgrind_leak.txt`, `strace_sms.txt`, `perf_sms.txt`).
-  * `docs/`: System architecture diagram and 13 experimental verification screenshots.
-  * `report/`: Formal technical engineering report (`assignment 2.pdf`).
+  * `driver/`: Kernel character device driver simulating environmental sensor hardware (`sms_sensor_driver.c`, `sms_sensor.h`).
+  * `app/`: Multi-threaded POSIX real-time application source (`sms_app.c`, `circular_buffer.c`, `test_circular_buffer.c`, worker threads, `measure_memory.sh`).
+  * `logs/`: Verifiable runtime execution and profiling logs (`perf_sms.txt`, `strace_sms.txt`, `valgrind_sms.txt`, `proc_sms_maps.txt`, `/proc/sms_stats` snapshots).
+  * `docs/`: High-level system architecture diagram and 13 experimental verification screenshots (`01_project_structure.png` to `13_cross_compile_arm.png`).
+  * `report/`: Formal technical engineering report in PDF format (`assignment 2.pdf`).
 - **`.gitignore`**: High-performance Git filter excluding raw multi-gigabyte kernel build trees and object artifacts.
 
 ---
@@ -161,7 +161,7 @@ The driver bridges userspace system call requests with physical/emulated hardwar
   * **Flash Hardware Simulation:** Emulated a 32MB physical NAND flash profile with 512-byte page size and 16KB eraseblock geometry (`0x4000`) using the host `nandsim` module.
   * **Erase/Program Workflows:** Cleaned partitions via `flash_erase`, synthesized structured filesystem images via `mkfs.jffs2 --no-cleanmarkers`, and wrote images using `nandwrite`.
   * **Verified Persistence:** Validated runtime writes, appending data, and verified full data retention across unmount (`umount`) and remount cycles on `/dev/mtdblock1`.
-  * **Node Inspection:** Extracted raw flash blocks using `nanddump` và confirmed the native JFFS2 magic bitmask (`0x85 0x19`) via `hexdump`.
+  * **Node Inspection:** Extracted raw flash blocks using `nanddump` and confirmed the native JFFS2 magic bitmask (`0x85 0x19`) via `hexdump`.
 
 - **Automated Boot Orchestration via BusyBox Init:**
   * Configured BusyBox `/sbin/init` through `/etc/inittab` to execute early system initialization via `/etc/init.d/rcS`.
@@ -242,7 +242,7 @@ The Sensor Monitoring System (SMS) is an end-to-end, multi-threaded real-time em
 
 - **Multi-Threaded Architecture & Thread-Safe Circular Buffer:**
   * **Sensor Thread:** Periodically wakes up every 300ms using high-resolution monotonic timer `clock_nanosleep(CLOCK_MONOTONIC)`, reads raw CSV frames from `/dev/sms_sensor`, measures real-time jitter, and pushes samples to the circular buffer.
-  * **Circular Buffer:** 64-slot ring buffer synchronized with `pthread_mutex_t` và `pthread_cond_t` (`not_empty`, `not_full`). Implements non-blocking drop-on-full semantics to prevent slow consumers from stalling real-time acquisition.
+  * **Circular Buffer:** 64-slot ring buffer synchronized with `pthread_mutex_t` and `pthread_cond_t` (`not_empty`, `not_full`). Implements non-blocking drop-on-full semantics to prevent slow consumers from stalling real-time acquisition.
   * **Processor Thread:** Pops samples from the buffer, analyzes thermal/humidity thresholds (Temp > 40.0°C, Humid > 80.0%, Temp Spike > 5.0°C), and dispatches events.
   * **Logger & Alert Workers:** Dedicated asynchronous workers handling persistent disk logging (`/tmp/sms.log` with 1MB log rotation) and instant high-priority console alerting (`stderr`).
 
@@ -265,12 +265,14 @@ The Sensor Monitoring System (SMS) is an end-to-end, multi-threaded real-time em
 assignment02_sensor_monitoring/
 ├── driver/
 │   ├── sms_sensor_driver.c
-│   ├── sms_sensor_driver.h
+│   ├── sms_sensor.h
 │   └── Makefile
 ├── app/
 │   ├── sms_app.c
+│   ├── sms_sensor.h
 │   ├── circular_buffer.h
 │   ├── circular_buffer.c
+│   ├── test_circular_buffer.c
 │   ├── sensor_thread.h
 │   ├── sensor_thread.c
 │   ├── processor_thread.h
@@ -279,12 +281,17 @@ assignment02_sensor_monitoring/
 │   ├── logger_thread.c
 │   ├── alert_thread.h
 │   ├── alert_thread.c
-│   ├── Makefile
-│   └── test_cb.c
+│   ├── measure_memory.sh
+│   └── Makefile
 ├── logs/
-│   ├── valgrind_leak.txt
+│   ├── perf_sms.txt
+│   ├── proc_sms_maps.txt
+│   ├── proc_sms_stats_after.txt
+│   ├── proc_sms_stats_before.txt
+│   ├── proc_sms_stats_runtime.txt
+│   ├── sms_sample_run.txt
 │   ├── strace_sms.txt
-│   └── perf_sms.txt
+│   └── valgrind_sms.txt
 ├── docs/
 │   ├── architecture_diagram.png
 │   ├── 01_project_structure.png
