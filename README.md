@@ -43,6 +43,11 @@ This repository contains all experimental deliverables, kernel source modificati
   * `report/`: Formal technical PDF laboratory report (`SE203238_Lab02_BaoCao.pdf`).
 * **`lab03_open_source/`**: Open Source Development Workflow & Community Contribution.
 * **`assignment01/`**: Advanced Linux Architecture & System Programming.
+  * `task1_ioctl/`: Source code for extending the LAB-02 character device driver with four IOCTL commands.
+  * `task2_misc/`: Source code for implementing a counter device using the Linux miscellaneous device framework.
+  * `logs/`: Test outputs and kernel logs.
+  * `docs/`: Driver architecture diagrams and supporting documentation.
+  * `report/`: Final technical report in PDF format.
 * **`assignment02/`**: Embedded Linux Capstone Project.
 * **`.gitignore`**: High-performance Git filter excluding raw multi-gigabyte kernel build trees and object artifacts.
 
@@ -161,6 +166,85 @@ The driver bridges userspace system call requests with physical/emulated hardwar
   * Fully automated the detection and dynamic insertion (`insmod`) of `lab2_driver.ko` and automated node creation (`mknod /dev/lab2 c 240 0`) before the interactive root shell spawns.
 
 ---
+## Assignment 01 – How to Write a Device Driver
+
+### 1. Overview
+
+This assignment focuses on Linux device driver development in an embedded Linux environment. It consists of two tasks: extending a character device driver with IOCTL commands and implementing a counter driver using the Linux miscellaneous device framework.
+
+### 2. Objectives
+
+- Understand the basic structure of a Linux device driver.
+- Extend a character device driver with custom IOCTL commands.
+- Implement a counter device using the Linux `miscdevice` framework.
+- Build, load, and test kernel modules.
+- Analyze driver behavior and document the test results.
+
+### 3. Task 1 – Extend a Character Device Driver with IOCTL
+
+Extend the LAB-02 device driver by implementing four IOCTL commands.
+
+| IOCTL Command | Description |
+|---|---|
+| Reset Buffer | Reset the driver's data buffer. |
+| Get Statistics | Retrieve driver statistics. |
+| Set Mode | Configure the driver's operating mode. |
+| Get Version | Retrieve the driver version. |
+
+**Expected files:**
+ 
+
+### 4. Task 2 – Implement a Counter Driver
+
+Implement a counter device using the Linux miscellaneous device framework (`miscdevice`).
+
+**Expected files:**
+
+
+
+### 5. Testing and Verification
+
+Both tasks must be built and tested in the target Linux environment.
+
+Testing activities include:
+
+- Building the kernel modules.
+- Loading and unloading the drivers.
+- Running the test scripts.
+- Checking driver behavior and return values.
+- Collecting test outputs and relevant kernel logs.
+
+#### 6. Project Structure
+
+The assignment 01 deliverables are organized as follows:
+
+```text
+assignment01/
+├── task1_ioctl/
+│   ├── asgn1_driver.c
+│   ├── asgn1_ioctl.h
+│   ├── Makefile
+│   ├── asgn1_driver.ko
+│   └── test_asgn1.sh
+│
+├── task2_misc/
+│   ├── counter_driver.c
+│   ├── Makefile
+│   ├── counter_driver.ko
+│   └── test_counter.sh
+│
+├── logs/
+│   ├── test_asgn1_output.txt
+│   ├── test_counter_output.txt
+│   └── dmesg_full.txt
+│
+├── docs/
+│   └── architecture_diagram.png
+│
+└── report/
+    └──Asgn01.pdf
+```
+
 
 ## 🛠️ Team Collaboration Protocol
 
