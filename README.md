@@ -52,8 +52,8 @@ This repository contains all experimental deliverables, kernel source modificati
   * `driver/`: Kernel character device driver simulating environmental sensor hardware (`sms_sensor_driver.c`).
   * `app/`: Multi-threaded POSIX real-time application source (`sms_app.c`, `circular_buffer.c`, worker threads).
   * `logs/`: Profiling and tracing outputs (`valgrind_leak.txt`, `strace_sms.txt`, `perf_sms.txt`).
-  * `docs/`: Architecture diagrams and 13 experimental verification evidence screenshots.
-  * `report/`: Formal technical report and documentation (`REPORT.md`).
+  * `docs/`: System architecture diagram and 13 experimental verification screenshots.
+  * `report/`: Formal technical engineering reports (`REPORT.docx`, `assignment 2.pdf`).
 - **`.gitignore`**: High-performance Git filter excluding raw multi-gigabyte kernel build trees and object artifacts.
 
 ---
@@ -161,7 +161,7 @@ The driver bridges userspace system call requests with physical/emulated hardwar
   * **Flash Hardware Simulation:** Emulated a 32MB physical NAND flash profile with 512-byte page size and 16KB eraseblock geometry (`0x4000`) using the host `nandsim` module.
   * **Erase/Program Workflows:** Cleaned partitions via `flash_erase`, synthesized structured filesystem images via `mkfs.jffs2 --no-cleanmarkers`, and wrote images using `nandwrite`.
   * **Verified Persistence:** Validated runtime writes, appending data, and verified full data retention across unmount (`umount`) and remount cycles on `/dev/mtdblock1`.
-  * **Node Inspection:** Extracted raw flash blocks using `nanddump` và confirmed the native JFFS2 magic bitmask (`0x85 0x19`) via `hexdump`.
+  * **Node Inspection:** Extracted raw flash blocks using `nanddump` and confirmed the native JFFS2 magic bitmask (`0x85 0x19`) via `hexdump`.
 
 - **Automated Boot Orchestration via BusyBox Init:**
   * Configured BusyBox `/sbin/init` through `/etc/inittab` to execute early system initialization via `/etc/init.d/rcS`.
@@ -287,21 +287,22 @@ assignment02_sensor_monitoring/
 │   └── perf_sms.txt
 ├── docs/
 │   ├── architecture_diagram.png
-│   ├── 01_driver_loaded.png
-│   ├── 02_circular_buffer_test.png
-│   ├── 03_multithread_running.png
-│   ├── 04_alert_trigger.png
-│   ├── 05_ipc_verification.png
-│   ├── 06_valgrind_leak_check.png
-│   ├── 07_memory_footprint.png
-│   ├── 08_proc_maps_analysis.png
+│   ├── 01_project_structure.png
+│   ├── 02_driver_build.png
+│   ├── 03_driver_test.png
+│   ├── 04_circular_buffer_test.png
+│   ├── 05_multithread_app_run.png
+│   ├── 06_sms_log_output.png
+│   ├── 07_valgrind_clean.png
+│   ├── 08_memory_analysis.png
 │   ├── 09_strace_summary.png
 │   ├── 10_perf_report.png
 │   ├── 11_gdb_debug_session.png
 │   ├── 12_jitter_rt_report.png
 │   └── 13_cross_compile_arm.png
 └── report/
-    └── REPORT.md
+    ├── REPORT.docx
+    └── assignment 2.pdf
 ```
 
 ---
