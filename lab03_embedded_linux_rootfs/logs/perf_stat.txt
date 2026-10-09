@@ -1,0 +1,31 @@
+./perf_target: Segmentation fault
+
+ Performance counter stats for './perf_target':
+
+                 2      context-switches                 #     55.4 cs/sec  cs_per_second     
+                 1      cpu-migrations                   #     27.7 migrations/sec  migrations_per_second
+               376      page-faults                      #  10420.4 faults/sec  page_faults_per_second
+             36.08 msec task-clock                       #      0.3 CPUs  CPUs_utilized       
+            10,256      cpu_core/branch-misses/          #      0.0 %  branch_miss_rate       
+        50,604,407      cpu_core/branches/               #   1402.4 M/sec  branch_frequency   
+        78,657,430      cpu_core/cpu-cycles/             #      2.2 GHz  cycles_frequency     
+       368,615,820      cpu_core/instructions/           #      4.7 instructions  insn_per_cycle
+     <not counted>      cpu_atom/branch-misses/          #      nan %  branch_miss_rate         (0.00%)
+     <not counted>      cpu_atom/branches/               #      nan M/sec  branch_frequency     (0.00%)
+     <not counted>      cpu_atom/cpu-cycles/             #      nan GHz  cycles_frequency       (0.00%)
+     <not counted>      cpu_atom/instructions/           #      nan instructions  insn_per_cycle  (0.00%)
+             TopdownL1 (cpu_core)                        #      0.4 %  tma_bad_speculation    
+                                                         #      6.2 %  tma_frontend_bound     
+                                                         #     11.7 %  tma_backend_bound      
+                                                         #     81.6 %  tma_retiring           
+             TopdownL1 (cpu_atom)                        #      nan %  tma_backend_bound        (0.00%)
+                                                         #      nan %  tma_frontend_bound       (0.00%)
+                                                         #      nan %  tma_bad_speculation    
+                                                         #      nan %  tma_retiring             (0.00%)
+
+       0.118935985 seconds time elapsed
+
+       0.032575000 seconds user
+       0.005170000 seconds sys
+
+
