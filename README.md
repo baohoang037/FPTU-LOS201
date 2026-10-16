@@ -220,12 +220,6 @@ assignment01/
 │   └── test.sh
 │   ├── Module.symvers
 │   ├── modules.order
-├── logs/
-│   ├── test_asgn1_output.txt
-│   ├── test_counter_output.txt
-│   └── dmesg_full.txt
-├── docs/
-│   └── architecture_diagram.png
 └── report/
     └── Asgn01.pdf
 ```
