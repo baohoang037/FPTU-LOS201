@@ -1,0 +1,1462 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 129  of event 'cycles:P'
+# Event count (approx.): 27152765
+#
+# Children      Self  Command      Shared Object         Symbol                             
+# ........  ........  ...........  ....................  ...................................
+#
+    97.32%    54.93%  perf_target  perf_target           [.] main
+            |          
+            |--54.93%--0
+            |          main
+            |          
+             --42.39%--main
+                       |          
+                        --41.98%--asm_sysvec_apic_timer_interrupt
+                                  sysvec_apic_timer_interrupt
+                                  __sysvec_apic_timer_interrupt
+                                  hrtimer_interrupt
+                                  |          
+                                  |--41.44%--__hrtimer_run_queues
+                                  |          tick_nohz_highres_handler
+                                  |          tick_sched_handle
+                                  |          update_process_times
+                                  |          scheduler_tick
+                                  |          perf_event_task_tick
+                                  |          perf_adjust_freq_unthr_context
+                                  |          |          
+                                  |          |--34.65%--x86_pmu_disable
+                                  |          |          amd_pmu_disable_all
+                                  |          |          amd_pmu_check_overflow
+                                  |          |          |          
+                                  |          |          |--31.91%--amd_pmu_test_overflow_topbit
+                                  |          |          |          |          
+                                  |          |          |          |--30.99%--native_read_msr
+                                  |          |          |          |          
+                                  |          |          |           --0.92%--amd_pmu_addr_offset
+                                  |          |          |          
+                                  |          |           --2.75%--__const_udelay
+                                  |          |                     delay_tsc
+                                  |          |          
+                                  |           --6.79%--x86_pmu_stop
+                                  |                     amd_pmu_disable_event
+                                  |                     amd_pmu_test_overflow_topbit
+                                  |                     native_read_msr
+                                  |          
+                                   --0.54%--tick_program_event
+                                             clockevents_program_event
+                                             lapic_next_event
+                                             native_write_msr
+
+    96.91%     0.00%  perf_target  [unknown]             [.] 0000000000000000
+            |
+            ---0
+               main
+               |          
+                --41.98%--asm_sysvec_apic_timer_interrupt
+                          sysvec_apic_timer_interrupt
+                          __sysvec_apic_timer_interrupt
+                          hrtimer_interrupt
+                          |          
+                          |--41.44%--__hrtimer_run_queues
+                          |          tick_nohz_highres_handler
+                          |          tick_sched_handle
+                          |          update_process_times
+                          |          scheduler_tick
+                          |          perf_event_task_tick
+                          |          perf_adjust_freq_unthr_context
+                          |          |          
+                          |          |--34.65%--x86_pmu_disable
+                          |          |          amd_pmu_disable_all
+                          |          |          amd_pmu_check_overflow
+                          |          |          |          
+                          |          |          |--31.91%--amd_pmu_test_overflow_topbit
+                          |          |          |          |          
+                          |          |          |          |--30.99%--native_read_msr
+                          |          |          |          |          
+                          |          |          |           --0.92%--amd_pmu_addr_offset
+                          |          |          |          
+                          |          |           --2.75%--__const_udelay
+                          |          |                     delay_tsc
+                          |          |          
+                          |           --6.79%--x86_pmu_stop
+                          |                     amd_pmu_disable_event
+                          |                     amd_pmu_test_overflow_topbit
+                          |                     native_read_msr
+                          |          
+                           --0.54%--tick_program_event
+                                     clockevents_program_event
+                                     lapic_next_event
+                                     native_write_msr
+
+    43.16%     0.00%  perf_target  [kernel.kallsyms]     [k] asm_sysvec_apic_timer_interrupt
+            |
+            ---asm_sysvec_apic_timer_interrupt
+               sysvec_apic_timer_interrupt
+               __sysvec_apic_timer_interrupt
+               hrtimer_interrupt
+               |          
+               |--42.62%--__hrtimer_run_queues
+               |          tick_nohz_highres_handler
+               |          tick_sched_handle
+               |          update_process_times
+               |          scheduler_tick
+               |          perf_event_task_tick
+               |          perf_adjust_freq_unthr_context
+               |          |          
+               |          |--35.22%--x86_pmu_disable
+               |          |          amd_pmu_disable_all
+               |          |          amd_pmu_check_overflow
+               |          |          |          
+               |          |          |--32.47%--amd_pmu_test_overflow_topbit
+               |          |          |          |          
+               |          |          |          |--31.56%--native_read_msr
+               |          |          |          |          
+               |          |          |           --0.92%--amd_pmu_addr_offset
+               |          |          |          
+               |          |           --2.75%--__const_udelay
+               |          |                     delay_tsc
+               |          |          
+               |           --7.40%--x86_pmu_stop
+               |                     amd_pmu_disable_event
+               |                     amd_pmu_test_overflow_topbit
+               |                     native_read_msr
+               |          
+                --0.54%--tick_program_event
+                          clockevents_program_event
+                          lapic_next_event
+                          native_write_msr
+
+    43.16%     0.00%  perf_target  [kernel.kallsyms]     [k] sysvec_apic_timer_interrupt
+            |
+            ---sysvec_apic_timer_interrupt
+               __sysvec_apic_timer_interrupt
+               hrtimer_interrupt
+               |          
+               |--42.62%--__hrtimer_run_queues
+               |          tick_nohz_highres_handler
+               |          tick_sched_handle
+               |          update_process_times
+               |          scheduler_tick
+               |          perf_event_task_tick
+               |          perf_adjust_freq_unthr_context
+               |          |          
+               |          |--35.22%--x86_pmu_disable
+               |          |          amd_pmu_disable_all
+               |          |          amd_pmu_check_overflow
+               |          |          |          
+               |          |          |--32.47%--amd_pmu_test_overflow_topbit
+               |          |          |          |          
+               |          |          |          |--31.56%--native_read_msr
+               |          |          |          |          
+               |          |          |           --0.92%--amd_pmu_addr_offset
+               |          |          |          
+               |          |           --2.75%--__const_udelay
+               |          |                     delay_tsc
+               |          |          
+               |           --7.40%--x86_pmu_stop
+               |                     amd_pmu_disable_event
+               |                     amd_pmu_test_overflow_topbit
+               |                     native_read_msr
+               |          
+                --0.54%--tick_program_event
+                          clockevents_program_event
+                          lapic_next_event
+                          native_write_msr
+
+    43.16%     0.00%  perf_target  [kernel.kallsyms]     [k] __sysvec_apic_timer_interrupt
+            |
+            ---__sysvec_apic_timer_interrupt
+               hrtimer_interrupt
+               |          
+               |--42.62%--__hrtimer_run_queues
+               |          tick_nohz_highres_handler
+               |          tick_sched_handle
+               |          update_process_times
+               |          scheduler_tick
+               |          perf_event_task_tick
+               |          perf_adjust_freq_unthr_context
+               |          |          
+               |          |--35.22%--x86_pmu_disable
+               |          |          amd_pmu_disable_all
+               |          |          amd_pmu_check_overflow
+               |          |          |          
+               |          |          |--32.47%--amd_pmu_test_overflow_topbit
+               |          |          |          |          
+               |          |          |          |--31.56%--native_read_msr
+               |          |          |          |          
+               |          |          |           --0.92%--amd_pmu_addr_offset
+               |          |          |          
+               |          |           --2.75%--__const_udelay
+               |          |                     delay_tsc
+               |          |          
+               |           --7.40%--x86_pmu_stop
+               |                     amd_pmu_disable_event
+               |                     amd_pmu_test_overflow_topbit
+               |                     native_read_msr
+               |          
+                --0.54%--tick_program_event
+                          clockevents_program_event
+                          lapic_next_event
+                          native_write_msr
+
+    43.16%     0.00%  perf_target  [kernel.kallsyms]     [k] hrtimer_interrupt
+            |
+            ---hrtimer_interrupt
+               |          
+               |--42.62%--__hrtimer_run_queues
+               |          tick_nohz_highres_handler
+               |          tick_sched_handle
+               |          update_process_times
+               |          scheduler_tick
+               |          perf_event_task_tick
+               |          perf_adjust_freq_unthr_context
+               |          |          
+               |          |--35.22%--x86_pmu_disable
+               |          |          amd_pmu_disable_all
+               |          |          amd_pmu_check_overflow
+               |          |          |          
+               |          |          |--32.47%--amd_pmu_test_overflow_topbit
+               |          |          |          |          
+               |          |          |          |--31.56%--native_read_msr
+               |          |          |          |          
+               |          |          |           --0.92%--amd_pmu_addr_offset
+               |          |          |          
+               |          |           --2.75%--__const_udelay
+               |          |                     delay_tsc
+               |          |          
+               |           --7.40%--x86_pmu_stop
+               |                     amd_pmu_disable_event
+               |                     amd_pmu_test_overflow_topbit
+               |                     native_read_msr
+               |          
+                --0.54%--tick_program_event
+                          clockevents_program_event
+                          lapic_next_event
+                          native_write_msr
+
+    42.62%     0.00%  perf_target  [kernel.kallsyms]     [k] __hrtimer_run_queues
+            |
+            ---__hrtimer_run_queues
+               tick_nohz_highres_handler
+               tick_sched_handle
+               update_process_times
+               scheduler_tick
+               perf_event_task_tick
+               perf_adjust_freq_unthr_context
+               |          
+               |--35.22%--x86_pmu_disable
+               |          amd_pmu_disable_all
+               |          amd_pmu_check_overflow
+               |          |          
+               |          |--32.47%--amd_pmu_test_overflow_topbit
+               |          |          |          
+               |          |          |--31.56%--native_read_msr
+               |          |          |          
+               |          |           --0.92%--amd_pmu_addr_offset
+               |          |          
+               |           --2.75%--__const_udelay
+               |                     delay_tsc
+               |          
+                --7.40%--x86_pmu_stop
+                          amd_pmu_disable_event
+                          amd_pmu_test_overflow_topbit
+                          native_read_msr
+
+    42.62%     0.00%  perf_target  [kernel.kallsyms]     [k] tick_nohz_highres_handler
+            |
+            ---tick_nohz_highres_handler
+               tick_sched_handle
+               update_process_times
+               scheduler_tick
+               perf_event_task_tick
+               perf_adjust_freq_unthr_context
+               |          
+               |--35.22%--x86_pmu_disable
+               |          amd_pmu_disable_all
+               |          amd_pmu_check_overflow
+               |          |          
+               |          |--32.47%--amd_pmu_test_overflow_topbit
+               |          |          |          
+               |          |          |--31.56%--native_read_msr
+               |          |          |          
+               |          |           --0.92%--amd_pmu_addr_offset
+               |          |          
+               |           --2.75%--__const_udelay
+               |                     delay_tsc
+               |          
+                --7.40%--x86_pmu_stop
+                          amd_pmu_disable_event
+                          amd_pmu_test_overflow_topbit
+                          native_read_msr
+
+    42.62%     0.00%  perf_target  [kernel.kallsyms]     [k] tick_sched_handle
+            |
+            ---tick_sched_handle
+               update_process_times
+               scheduler_tick
+               perf_event_task_tick
+               perf_adjust_freq_unthr_context
+               |          
+               |--35.22%--x86_pmu_disable
+               |          amd_pmu_disable_all
+               |          amd_pmu_check_overflow
+               |          |          
+               |          |--32.47%--amd_pmu_test_overflow_topbit
+               |          |          |          
+               |          |          |--31.56%--native_read_msr
+               |          |          |          
+               |          |           --0.92%--amd_pmu_addr_offset
+               |          |          
+               |           --2.75%--__const_udelay
+               |                     delay_tsc
+               |          
+                --7.40%--x86_pmu_stop
+                          amd_pmu_disable_event
+                          amd_pmu_test_overflow_topbit
+                          native_read_msr
+
+    42.62%     0.00%  perf_target  [kernel.kallsyms]     [k] update_process_times
+            |
+            ---update_process_times
+               scheduler_tick
+               perf_event_task_tick
+               perf_adjust_freq_unthr_context
+               |          
+               |--35.22%--x86_pmu_disable
+               |          amd_pmu_disable_all
+               |          amd_pmu_check_overflow
+               |          |          
+               |          |--32.47%--amd_pmu_test_overflow_topbit
+               |          |          |          
+               |          |          |--31.56%--native_read_msr
+               |          |          |          
+               |          |           --0.92%--amd_pmu_addr_offset
+               |          |          
+               |           --2.75%--__const_udelay
+               |                     delay_tsc
+               |          
+                --7.40%--x86_pmu_stop
+                          amd_pmu_disable_event
+                          amd_pmu_test_overflow_topbit
+                          native_read_msr
+
+    42.62%     0.00%  perf_target  [kernel.kallsyms]     [k] scheduler_tick
+            |
+            ---scheduler_tick
+               perf_event_task_tick
+               perf_adjust_freq_unthr_context
+               |          
+               |--35.22%--x86_pmu_disable
+               |          amd_pmu_disable_all
+               |          amd_pmu_check_overflow
+               |          |          
+               |          |--32.47%--amd_pmu_test_overflow_topbit
+               |          |          |          
+               |          |          |--31.56%--native_read_msr
+               |          |          |          
+               |          |           --0.92%--amd_pmu_addr_offset
+               |          |          
+               |           --2.75%--__const_udelay
+               |                     delay_tsc
+               |          
+                --7.40%--x86_pmu_stop
+                          amd_pmu_disable_event
+                          amd_pmu_test_overflow_topbit
+                          native_read_msr
+
+    42.62%     0.00%  perf_target  [kernel.kallsyms]     [k] perf_event_task_tick
+            |
+            ---perf_event_task_tick
+               perf_adjust_freq_unthr_context
+               |          
+               |--35.22%--x86_pmu_disable
+               |          amd_pmu_disable_all
+               |          amd_pmu_check_overflow
+               |          |          
+               |          |--32.47%--amd_pmu_test_overflow_topbit
+               |          |          |          
+               |          |          |--31.56%--native_read_msr
+               |          |          |          
+               |          |           --0.92%--amd_pmu_addr_offset
+               |          |          
+               |           --2.75%--__const_udelay
+               |                     delay_tsc
+               |          
+                --7.40%--x86_pmu_stop
+                          amd_pmu_disable_event
+                          amd_pmu_test_overflow_topbit
+                          native_read_msr
+
+    42.62%     0.00%  perf_target  [kernel.kallsyms]     [k] perf_adjust_freq_unthr_context
+            |
+            ---perf_adjust_freq_unthr_context
+               |          
+               |--35.22%--x86_pmu_disable
+               |          amd_pmu_disable_all
+               |          amd_pmu_check_overflow
+               |          |          
+               |          |--32.47%--amd_pmu_test_overflow_topbit
+               |          |          |          
+               |          |          |--31.56%--native_read_msr
+               |          |          |          
+               |          |           --0.92%--amd_pmu_addr_offset
+               |          |          
+               |           --2.75%--__const_udelay
+               |                     delay_tsc
+               |          
+                --7.40%--x86_pmu_stop
+                          amd_pmu_disable_event
+                          amd_pmu_test_overflow_topbit
+                          native_read_msr
+
+    40.45%     0.00%  perf_target  [kernel.kallsyms]     [k] amd_pmu_test_overflow_topbit
+            |
+            ---amd_pmu_test_overflow_topbit
+               |          
+               |--39.53%--native_read_msr
+               |          
+                --0.92%--amd_pmu_addr_offset
+
+    39.53%    39.53%  perf_target  [kernel.kallsyms]     [k] native_read_msr
+            |          
+            |--37.78%--0
+            |          main
+            |          asm_sysvec_apic_timer_interrupt
+            |          sysvec_apic_timer_interrupt
+            |          __sysvec_apic_timer_interrupt
+            |          hrtimer_interrupt
+            |          __hrtimer_run_queues
+            |          tick_nohz_highres_handler
+            |          tick_sched_handle
+            |          update_process_times
+            |          scheduler_tick
+            |          perf_event_task_tick
+            |          perf_adjust_freq_unthr_context
+            |          |          
+            |          |--30.99%--x86_pmu_disable
+            |          |          amd_pmu_disable_all
+            |          |          amd_pmu_check_overflow
+            |          |          amd_pmu_test_overflow_topbit
+            |          |          native_read_msr
+            |          |          
+            |           --6.79%--x86_pmu_stop
+            |                     amd_pmu_disable_event
+            |                     amd_pmu_test_overflow_topbit
+            |                     native_read_msr
+            |          
+            |--1.18%--0x71e34cceb04b
+            |          entry_SYSCALL_64_after_hwframe
+            |          do_syscall_64
+            |          x64_sys_call
+            |          __x64_sys_execve
+            |          do_execveat_common.isra.0
+            |          bprm_execve
+            |          bprm_execve.part.0
+            |          exec_binprm
+            |          search_binary_handler
+            |          load_elf_binary
+            |          load_elf_interp.constprop.0
+            |          elf_load
+            |          vm_munmap
+            |          __vm_munmap
+            |          do_vmi_munmap
+            |          do_vmi_align_munmap
+            |          __split_vma
+            |          vm_area_dup
+            |          asm_sysvec_apic_timer_interrupt
+            |          sysvec_apic_timer_interrupt
+            |          __sysvec_apic_timer_interrupt
+            |          hrtimer_interrupt
+            |          __hrtimer_run_queues
+            |          tick_nohz_highres_handler
+            |          tick_sched_handle
+            |          update_process_times
+            |          scheduler_tick
+            |          perf_event_task_tick
+            |          perf_adjust_freq_unthr_context
+            |          |          
+            |          |--0.62%--x86_pmu_stop
+            |          |          amd_pmu_disable_event
+            |          |          amd_pmu_test_overflow_topbit
+            |          |          native_read_msr
+            |          |          
+            |           --0.57%--x86_pmu_disable
+            |                     amd_pmu_disable_all
+            |                     amd_pmu_check_overflow
+            |                     amd_pmu_test_overflow_topbit
+            |                     native_read_msr
+            |          
+             --0.57%--_exit
+                       entry_SYSCALL_64_after_hwframe
+                       do_syscall_64
+                       x64_sys_call
+                       __x64_sys_exit_group
+                       do_group_exit
+                       do_exit
+                       perf_event_exit_task
+                       ctx_sched_out
+                       __pmu_ctx_sched_out
+                       x86_pmu_disable
+                       amd_pmu_disable_all
+                       amd_pmu_check_overflow
+                       amd_pmu_test_overflow_topbit
+                       native_read_msr
+
+    35.79%     0.00%  perf_target  [kernel.kallsyms]     [k] x86_pmu_disable
+            |
+            ---x86_pmu_disable
+               amd_pmu_disable_all
+               amd_pmu_check_overflow
+               |          
+               |--33.04%--amd_pmu_test_overflow_topbit
+               |          |          
+               |          |--32.13%--native_read_msr
+               |          |          
+               |           --0.92%--amd_pmu_addr_offset
+               |          
+                --2.75%--__const_udelay
+                          delay_tsc
+
+    35.79%     0.00%  perf_target  [kernel.kallsyms]     [k] amd_pmu_disable_all
+            |
+            ---amd_pmu_disable_all
+               amd_pmu_check_overflow
+               |          
+               |--33.04%--amd_pmu_test_overflow_topbit
+               |          |          
+               |          |--32.13%--native_read_msr
+               |          |          
+               |           --0.92%--amd_pmu_addr_offset
+               |          
+                --2.75%--__const_udelay
+                          delay_tsc
+
+    35.79%     0.00%  perf_target  [kernel.kallsyms]     [k] amd_pmu_check_overflow
+            |
+            ---amd_pmu_check_overflow
+               |          
+               |--33.04%--amd_pmu_test_overflow_topbit
+               |          |          
+               |          |--32.13%--native_read_msr
+               |          |          
+               |           --0.92%--amd_pmu_addr_offset
+               |          
+                --2.75%--__const_udelay
+                          delay_tsc
+
+     7.40%     0.00%  perf_target  [kernel.kallsyms]     [k] x86_pmu_stop
+            |
+            ---x86_pmu_stop
+               amd_pmu_disable_event
+               amd_pmu_test_overflow_topbit
+               native_read_msr
+
+     7.40%     0.00%  perf_target  [kernel.kallsyms]     [k] amd_pmu_disable_event
+            |
+            ---amd_pmu_disable_event
+               amd_pmu_test_overflow_topbit
+               native_read_msr
+
+     2.75%     2.75%  perf_target  [kernel.kallsyms]     [k] delay_tsc
+            |
+            ---0
+               main
+               asm_sysvec_apic_timer_interrupt
+               sysvec_apic_timer_interrupt
+               __sysvec_apic_timer_interrupt
+               hrtimer_interrupt
+               __hrtimer_run_queues
+               tick_nohz_highres_handler
+               tick_sched_handle
+               update_process_times
+               scheduler_tick
+               perf_event_task_tick
+               perf_adjust_freq_unthr_context
+               x86_pmu_disable
+               amd_pmu_disable_all
+               amd_pmu_check_overflow
+               __const_udelay
+               delay_tsc
+
+     2.75%     0.00%  perf_target  [kernel.kallsyms]     [k] __const_udelay
+            |
+            ---__const_udelay
+               delay_tsc
+
+     1.76%     0.00%  perf_target  [kernel.kallsyms]     [k] entry_SYSCALL_64_after_hwframe
+            |
+            ---entry_SYSCALL_64_after_hwframe
+               do_syscall_64
+               x64_sys_call
+               |          
+               |--1.18%--__x64_sys_execve
+               |          do_execveat_common.isra.0
+               |          bprm_execve
+               |          bprm_execve.part.0
+               |          exec_binprm
+               |          search_binary_handler
+               |          load_elf_binary
+               |          load_elf_interp.constprop.0
+               |          elf_load
+               |          vm_munmap
+               |          __vm_munmap
+               |          do_vmi_munmap
+               |          do_vmi_align_munmap
+               |          __split_vma
+               |          vm_area_dup
+               |          |          
+               |           --1.18%--asm_sysvec_apic_timer_interrupt
+               |                     sysvec_apic_timer_interrupt
+               |                     __sysvec_apic_timer_interrupt
+               |                     hrtimer_interrupt
+               |                     __hrtimer_run_queues
+               |                     tick_nohz_highres_handler
+               |                     tick_sched_handle
+               |                     update_process_times
+               |                     scheduler_tick
+               |                     perf_event_task_tick
+               |                     perf_adjust_freq_unthr_context
+               |                     |          
+               |                     |--0.62%--x86_pmu_stop
+               |                     |          amd_pmu_disable_event
+               |                     |          amd_pmu_test_overflow_topbit
+               |                     |          native_read_msr
+               |                     |          
+               |                      --0.57%--x86_pmu_disable
+               |                                amd_pmu_disable_all
+               |                                amd_pmu_check_overflow
+               |                                amd_pmu_test_overflow_topbit
+               |                                native_read_msr
+               |          
+                --0.57%--__x64_sys_exit_group
+                          do_group_exit
+                          do_exit
+                          perf_event_exit_task
+                          ctx_sched_out
+                          __pmu_ctx_sched_out
+                          x86_pmu_disable
+                          amd_pmu_disable_all
+                          amd_pmu_check_overflow
+                          amd_pmu_test_overflow_topbit
+                          native_read_msr
+
+     1.76%     0.00%  perf_target  [kernel.kallsyms]     [k] do_syscall_64
+            |
+            ---do_syscall_64
+               x64_sys_call
+               |          
+               |--1.18%--__x64_sys_execve
+               |          do_execveat_common.isra.0
+               |          bprm_execve
+               |          bprm_execve.part.0
+               |          exec_binprm
+               |          search_binary_handler
+               |          load_elf_binary
+               |          load_elf_interp.constprop.0
+               |          elf_load
+               |          vm_munmap
+               |          __vm_munmap
+               |          do_vmi_munmap
+               |          do_vmi_align_munmap
+               |          __split_vma
+               |          vm_area_dup
+               |          |          
+               |           --1.18%--asm_sysvec_apic_timer_interrupt
+               |                     sysvec_apic_timer_interrupt
+               |                     __sysvec_apic_timer_interrupt
+               |                     hrtimer_interrupt
+               |                     __hrtimer_run_queues
+               |                     tick_nohz_highres_handler
+               |                     tick_sched_handle
+               |                     update_process_times
+               |                     scheduler_tick
+               |                     perf_event_task_tick
+               |                     perf_adjust_freq_unthr_context
+               |                     |          
+               |                     |--0.62%--x86_pmu_stop
+               |                     |          amd_pmu_disable_event
+               |                     |          amd_pmu_test_overflow_topbit
+               |                     |          native_read_msr
+               |                     |          
+               |                      --0.57%--x86_pmu_disable
+               |                                amd_pmu_disable_all
+               |                                amd_pmu_check_overflow
+               |                                amd_pmu_test_overflow_topbit
+               |                                native_read_msr
+               |          
+                --0.57%--__x64_sys_exit_group
+                          do_group_exit
+                          do_exit
+                          perf_event_exit_task
+                          ctx_sched_out
+                          __pmu_ctx_sched_out
+                          x86_pmu_disable
+                          amd_pmu_disable_all
+                          amd_pmu_check_overflow
+                          amd_pmu_test_overflow_topbit
+                          native_read_msr
+
+     1.76%     0.00%  perf_target  [kernel.kallsyms]     [k] x64_sys_call
+            |
+            ---x64_sys_call
+               |          
+               |--1.18%--__x64_sys_execve
+               |          do_execveat_common.isra.0
+               |          bprm_execve
+               |          bprm_execve.part.0
+               |          exec_binprm
+               |          search_binary_handler
+               |          load_elf_binary
+               |          load_elf_interp.constprop.0
+               |          elf_load
+               |          vm_munmap
+               |          __vm_munmap
+               |          do_vmi_munmap
+               |          do_vmi_align_munmap
+               |          __split_vma
+               |          vm_area_dup
+               |          |          
+               |           --1.18%--asm_sysvec_apic_timer_interrupt
+               |                     sysvec_apic_timer_interrupt
+               |                     __sysvec_apic_timer_interrupt
+               |                     hrtimer_interrupt
+               |                     __hrtimer_run_queues
+               |                     tick_nohz_highres_handler
+               |                     tick_sched_handle
+               |                     update_process_times
+               |                     scheduler_tick
+               |                     perf_event_task_tick
+               |                     perf_adjust_freq_unthr_context
+               |                     |          
+               |                     |--0.62%--x86_pmu_stop
+               |                     |          amd_pmu_disable_event
+               |                     |          amd_pmu_test_overflow_topbit
+               |                     |          native_read_msr
+               |                     |          
+               |                      --0.57%--x86_pmu_disable
+               |                                amd_pmu_disable_all
+               |                                amd_pmu_check_overflow
+               |                                amd_pmu_test_overflow_topbit
+               |                                native_read_msr
+               |          
+                --0.57%--__x64_sys_exit_group
+                          do_group_exit
+                          do_exit
+                          perf_event_exit_task
+                          ctx_sched_out
+                          __pmu_ctx_sched_out
+                          x86_pmu_disable
+                          amd_pmu_disable_all
+                          amd_pmu_check_overflow
+                          amd_pmu_test_overflow_topbit
+                          native_read_msr
+
+     1.18%     0.00%  perf_target  [unknown]             [k] 0x000071e34cceb04b
+            |
+            ---0x71e34cceb04b
+               entry_SYSCALL_64_after_hwframe
+               do_syscall_64
+               x64_sys_call
+               __x64_sys_execve
+               do_execveat_common.isra.0
+               bprm_execve
+               bprm_execve.part.0
+               exec_binprm
+               search_binary_handler
+               load_elf_binary
+               load_elf_interp.constprop.0
+               elf_load
+               vm_munmap
+               __vm_munmap
+               do_vmi_munmap
+               do_vmi_align_munmap
+               __split_vma
+               vm_area_dup
+               |          
+                --1.18%--asm_sysvec_apic_timer_interrupt
+                          sysvec_apic_timer_interrupt
+                          __sysvec_apic_timer_interrupt
+                          hrtimer_interrupt
+                          __hrtimer_run_queues
+                          tick_nohz_highres_handler
+                          tick_sched_handle
+                          update_process_times
+                          scheduler_tick
+                          perf_event_task_tick
+                          perf_adjust_freq_unthr_context
+                          |          
+                          |--0.62%--x86_pmu_stop
+                          |          amd_pmu_disable_event
+                          |          amd_pmu_test_overflow_topbit
+                          |          native_read_msr
+                          |          
+                           --0.57%--x86_pmu_disable
+                                     amd_pmu_disable_all
+                                     amd_pmu_check_overflow
+                                     amd_pmu_test_overflow_topbit
+                                     native_read_msr
+
+     1.18%     0.00%  perf_target  [kernel.kallsyms]     [k] __x64_sys_execve
+            |
+            ---__x64_sys_execve
+               do_execveat_common.isra.0
+               bprm_execve
+               bprm_execve.part.0
+               exec_binprm
+               search_binary_handler
+               load_elf_binary
+               load_elf_interp.constprop.0
+               elf_load
+               vm_munmap
+               __vm_munmap
+               do_vmi_munmap
+               do_vmi_align_munmap
+               __split_vma
+               vm_area_dup
+               |          
+                --1.18%--asm_sysvec_apic_timer_interrupt
+                          sysvec_apic_timer_interrupt
+                          __sysvec_apic_timer_interrupt
+                          hrtimer_interrupt
+                          __hrtimer_run_queues
+                          tick_nohz_highres_handler
+                          tick_sched_handle
+                          update_process_times
+                          scheduler_tick
+                          perf_event_task_tick
+                          perf_adjust_freq_unthr_context
+                          |          
+                          |--0.62%--x86_pmu_stop
+                          |          amd_pmu_disable_event
+                          |          amd_pmu_test_overflow_topbit
+                          |          native_read_msr
+                          |          
+                           --0.57%--x86_pmu_disable
+                                     amd_pmu_disable_all
+                                     amd_pmu_check_overflow
+                                     amd_pmu_test_overflow_topbit
+                                     native_read_msr
+
+     1.18%     0.00%  perf_target  [kernel.kallsyms]     [k] do_execveat_common.isra.0
+            |
+            ---do_execveat_common.isra.0
+               bprm_execve
+               bprm_execve.part.0
+               exec_binprm
+               search_binary_handler
+               load_elf_binary
+               load_elf_interp.constprop.0
+               elf_load
+               vm_munmap
+               __vm_munmap
+               do_vmi_munmap
+               do_vmi_align_munmap
+               __split_vma
+               vm_area_dup
+               |          
+                --1.18%--asm_sysvec_apic_timer_interrupt
+                          sysvec_apic_timer_interrupt
+                          __sysvec_apic_timer_interrupt
+                          hrtimer_interrupt
+                          __hrtimer_run_queues
+                          tick_nohz_highres_handler
+                          tick_sched_handle
+                          update_process_times
+                          scheduler_tick
+                          perf_event_task_tick
+                          perf_adjust_freq_unthr_context
+                          |          
+                          |--0.62%--x86_pmu_stop
+                          |          amd_pmu_disable_event
+                          |          amd_pmu_test_overflow_topbit
+                          |          native_read_msr
+                          |          
+                           --0.57%--x86_pmu_disable
+                                     amd_pmu_disable_all
+                                     amd_pmu_check_overflow
+                                     amd_pmu_test_overflow_topbit
+                                     native_read_msr
+
+     1.18%     0.00%  perf_target  [kernel.kallsyms]     [k] bprm_execve
+            |
+            ---bprm_execve
+               bprm_execve.part.0
+               exec_binprm
+               search_binary_handler
+               load_elf_binary
+               load_elf_interp.constprop.0
+               elf_load
+               vm_munmap
+               __vm_munmap
+               do_vmi_munmap
+               do_vmi_align_munmap
+               __split_vma
+               vm_area_dup
+               |          
+                --1.18%--asm_sysvec_apic_timer_interrupt
+                          sysvec_apic_timer_interrupt
+                          __sysvec_apic_timer_interrupt
+                          hrtimer_interrupt
+                          __hrtimer_run_queues
+                          tick_nohz_highres_handler
+                          tick_sched_handle
+                          update_process_times
+                          scheduler_tick
+                          perf_event_task_tick
+                          perf_adjust_freq_unthr_context
+                          |          
+                          |--0.62%--x86_pmu_stop
+                          |          amd_pmu_disable_event
+                          |          amd_pmu_test_overflow_topbit
+                          |          native_read_msr
+                          |          
+                           --0.57%--x86_pmu_disable
+                                     amd_pmu_disable_all
+                                     amd_pmu_check_overflow
+                                     amd_pmu_test_overflow_topbit
+                                     native_read_msr
+
+     1.18%     0.00%  perf_target  [kernel.kallsyms]     [k] bprm_execve.part.0
+            |
+            ---bprm_execve.part.0
+               exec_binprm
+               search_binary_handler
+               load_elf_binary
+               load_elf_interp.constprop.0
+               elf_load
+               vm_munmap
+               __vm_munmap
+               do_vmi_munmap
+               do_vmi_align_munmap
+               __split_vma
+               vm_area_dup
+               |          
+                --1.18%--asm_sysvec_apic_timer_interrupt
+                          sysvec_apic_timer_interrupt
+                          __sysvec_apic_timer_interrupt
+                          hrtimer_interrupt
+                          __hrtimer_run_queues
+                          tick_nohz_highres_handler
+                          tick_sched_handle
+                          update_process_times
+                          scheduler_tick
+                          perf_event_task_tick
+                          perf_adjust_freq_unthr_context
+                          |          
+                          |--0.62%--x86_pmu_stop
+                          |          amd_pmu_disable_event
+                          |          amd_pmu_test_overflow_topbit
+                          |          native_read_msr
+                          |          
+                           --0.57%--x86_pmu_disable
+                                     amd_pmu_disable_all
+                                     amd_pmu_check_overflow
+                                     amd_pmu_test_overflow_topbit
+                                     native_read_msr
+
+     1.18%     0.00%  perf_target  [kernel.kallsyms]     [k] exec_binprm
+            |
+            ---exec_binprm
+               search_binary_handler
+               load_elf_binary
+               load_elf_interp.constprop.0
+               elf_load
+               vm_munmap
+               __vm_munmap
+               do_vmi_munmap
+               do_vmi_align_munmap
+               __split_vma
+               vm_area_dup
+               |          
+                --1.18%--asm_sysvec_apic_timer_interrupt
+                          sysvec_apic_timer_interrupt
+                          __sysvec_apic_timer_interrupt
+                          hrtimer_interrupt
+                          __hrtimer_run_queues
+                          tick_nohz_highres_handler
+                          tick_sched_handle
+                          update_process_times
+                          scheduler_tick
+                          perf_event_task_tick
+                          perf_adjust_freq_unthr_context
+                          |          
+                          |--0.62%--x86_pmu_stop
+                          |          amd_pmu_disable_event
+                          |          amd_pmu_test_overflow_topbit
+                          |          native_read_msr
+                          |          
+                           --0.57%--x86_pmu_disable
+                                     amd_pmu_disable_all
+                                     amd_pmu_check_overflow
+                                     amd_pmu_test_overflow_topbit
+                                     native_read_msr
+
+     1.18%     0.00%  perf_target  [kernel.kallsyms]     [k] search_binary_handler
+            |
+            ---search_binary_handler
+               load_elf_binary
+               load_elf_interp.constprop.0
+               elf_load
+               vm_munmap
+               __vm_munmap
+               do_vmi_munmap
+               do_vmi_align_munmap
+               __split_vma
+               vm_area_dup
+               |          
+                --1.18%--asm_sysvec_apic_timer_interrupt
+                          sysvec_apic_timer_interrupt
+                          __sysvec_apic_timer_interrupt
+                          hrtimer_interrupt
+                          __hrtimer_run_queues
+                          tick_nohz_highres_handler
+                          tick_sched_handle
+                          update_process_times
+                          scheduler_tick
+                          perf_event_task_tick
+                          perf_adjust_freq_unthr_context
+                          |          
+                          |--0.62%--x86_pmu_stop
+                          |          amd_pmu_disable_event
+                          |          amd_pmu_test_overflow_topbit
+                          |          native_read_msr
+                          |          
+                           --0.57%--x86_pmu_disable
+                                     amd_pmu_disable_all
+                                     amd_pmu_check_overflow
+                                     amd_pmu_test_overflow_topbit
+                                     native_read_msr
+
+     1.18%     0.00%  perf_target  [kernel.kallsyms]     [k] load_elf_binary
+            |
+            ---load_elf_binary
+               load_elf_interp.constprop.0
+               elf_load
+               vm_munmap
+               __vm_munmap
+               do_vmi_munmap
+               do_vmi_align_munmap
+               __split_vma
+               vm_area_dup
+               |          
+                --1.18%--asm_sysvec_apic_timer_interrupt
+                          sysvec_apic_timer_interrupt
+                          __sysvec_apic_timer_interrupt
+                          hrtimer_interrupt
+                          __hrtimer_run_queues
+                          tick_nohz_highres_handler
+                          tick_sched_handle
+                          update_process_times
+                          scheduler_tick
+                          perf_event_task_tick
+                          perf_adjust_freq_unthr_context
+                          |          
+                          |--0.62%--x86_pmu_stop
+                          |          amd_pmu_disable_event
+                          |          amd_pmu_test_overflow_topbit
+                          |          native_read_msr
+                          |          
+                           --0.57%--x86_pmu_disable
+                                     amd_pmu_disable_all
+                                     amd_pmu_check_overflow
+                                     amd_pmu_test_overflow_topbit
+                                     native_read_msr
+
+     1.18%     0.00%  perf_target  [kernel.kallsyms]     [k] load_elf_interp.constprop.0
+            |
+            ---load_elf_interp.constprop.0
+               elf_load
+               vm_munmap
+               __vm_munmap
+               do_vmi_munmap
+               do_vmi_align_munmap
+               __split_vma
+               vm_area_dup
+               |          
+                --1.18%--asm_sysvec_apic_timer_interrupt
+                          sysvec_apic_timer_interrupt
+                          __sysvec_apic_timer_interrupt
+                          hrtimer_interrupt
+                          __hrtimer_run_queues
+                          tick_nohz_highres_handler
+                          tick_sched_handle
+                          update_process_times
+                          scheduler_tick
+                          perf_event_task_tick
+                          perf_adjust_freq_unthr_context
+                          |          
+                          |--0.62%--x86_pmu_stop
+                          |          amd_pmu_disable_event
+                          |          amd_pmu_test_overflow_topbit
+                          |          native_read_msr
+                          |          
+                           --0.57%--x86_pmu_disable
+                                     amd_pmu_disable_all
+                                     amd_pmu_check_overflow
+                                     amd_pmu_test_overflow_topbit
+                                     native_read_msr
+
+     1.18%     0.00%  perf_target  [kernel.kallsyms]     [k] elf_load
+            |
+            ---elf_load
+               vm_munmap
+               __vm_munmap
+               do_vmi_munmap
+               do_vmi_align_munmap
+               __split_vma
+               vm_area_dup
+               |          
+                --1.18%--asm_sysvec_apic_timer_interrupt
+                          sysvec_apic_timer_interrupt
+                          __sysvec_apic_timer_interrupt
+                          hrtimer_interrupt
+                          __hrtimer_run_queues
+                          tick_nohz_highres_handler
+                          tick_sched_handle
+                          update_process_times
+                          scheduler_tick
+                          perf_event_task_tick
+                          perf_adjust_freq_unthr_context
+                          |          
+                          |--0.62%--x86_pmu_stop
+                          |          amd_pmu_disable_event
+                          |          amd_pmu_test_overflow_topbit
+                          |          native_read_msr
+                          |          
+                           --0.57%--x86_pmu_disable
+                                     amd_pmu_disable_all
+                                     amd_pmu_check_overflow
+                                     amd_pmu_test_overflow_topbit
+                                     native_read_msr
+
+     1.18%     0.00%  perf_target  [kernel.kallsyms]     [k] vm_munmap
+            |
+            ---vm_munmap
+               __vm_munmap
+               do_vmi_munmap
+               do_vmi_align_munmap
+               __split_vma
+               vm_area_dup
+               |          
+                --1.18%--asm_sysvec_apic_timer_interrupt
+                          sysvec_apic_timer_interrupt
+                          __sysvec_apic_timer_interrupt
+                          hrtimer_interrupt
+                          __hrtimer_run_queues
+                          tick_nohz_highres_handler
+                          tick_sched_handle
+                          update_process_times
+                          scheduler_tick
+                          perf_event_task_tick
+                          perf_adjust_freq_unthr_context
+                          |          
+                          |--0.62%--x86_pmu_stop
+                          |          amd_pmu_disable_event
+                          |          amd_pmu_test_overflow_topbit
+                          |          native_read_msr
+                          |          
+                           --0.57%--x86_pmu_disable
+                                     amd_pmu_disable_all
+                                     amd_pmu_check_overflow
+                                     amd_pmu_test_overflow_topbit
+                                     native_read_msr
+
+     1.18%     0.00%  perf_target  [kernel.kallsyms]     [k] __vm_munmap
+            |
+            ---__vm_munmap
+               do_vmi_munmap
+               do_vmi_align_munmap
+               __split_vma
+               vm_area_dup
+               |          
+                --1.18%--asm_sysvec_apic_timer_interrupt
+                          sysvec_apic_timer_interrupt
+                          __sysvec_apic_timer_interrupt
+                          hrtimer_interrupt
+                          __hrtimer_run_queues
+                          tick_nohz_highres_handler
+                          tick_sched_handle
+                          update_process_times
+                          scheduler_tick
+                          perf_event_task_tick
+                          perf_adjust_freq_unthr_context
+                          |          
+                          |--0.62%--x86_pmu_stop
+                          |          amd_pmu_disable_event
+                          |          amd_pmu_test_overflow_topbit
+                          |          native_read_msr
+                          |          
+                           --0.57%--x86_pmu_disable
+                                     amd_pmu_disable_all
+                                     amd_pmu_check_overflow
+                                     amd_pmu_test_overflow_topbit
+                                     native_read_msr
+
+     1.18%     0.00%  perf_target  [kernel.kallsyms]     [k] do_vmi_munmap
+            |
+            ---do_vmi_munmap
+               do_vmi_align_munmap
+               __split_vma
+               vm_area_dup
+               |          
+                --1.18%--asm_sysvec_apic_timer_interrupt
+                          sysvec_apic_timer_interrupt
+                          __sysvec_apic_timer_interrupt
+                          hrtimer_interrupt
+                          __hrtimer_run_queues
+                          tick_nohz_highres_handler
+                          tick_sched_handle
+                          update_process_times
+                          scheduler_tick
+                          perf_event_task_tick
+                          perf_adjust_freq_unthr_context
+                          |          
+                          |--0.62%--x86_pmu_stop
+                          |          amd_pmu_disable_event
+                          |          amd_pmu_test_overflow_topbit
+                          |          native_read_msr
+                          |          
+                           --0.57%--x86_pmu_disable
+                                     amd_pmu_disable_all
+                                     amd_pmu_check_overflow
+                                     amd_pmu_test_overflow_topbit
+                                     native_read_msr
+
+     1.18%     0.00%  perf_target  [kernel.kallsyms]     [k] vm_area_dup
+            |          
+             --1.18%--vm_area_dup
+                       asm_sysvec_apic_timer_interrupt
+                       sysvec_apic_timer_interrupt
+                       __sysvec_apic_timer_interrupt
+                       hrtimer_interrupt
+                       __hrtimer_run_queues
+                       tick_nohz_highres_handler
+                       tick_sched_handle
+                       update_process_times
+                       scheduler_tick
+                       perf_event_task_tick
+                       perf_adjust_freq_unthr_context
+                       |          
+                       |--0.62%--x86_pmu_stop
+                       |          amd_pmu_disable_event
+                       |          amd_pmu_test_overflow_topbit
+                       |          native_read_msr
+                       |          
+                        --0.57%--x86_pmu_disable
+                                  amd_pmu_disable_all
+                                  amd_pmu_check_overflow
+                                  amd_pmu_test_overflow_topbit
+                                  native_read_msr
+
+     1.18%     0.00%  perf_target  [kernel.kallsyms]     [k] do_vmi_align_munmap
+            |
+            ---do_vmi_align_munmap
+               __split_vma
+               vm_area_dup
+               |          
+                --1.18%--asm_sysvec_apic_timer_interrupt
+                          sysvec_apic_timer_interrupt
+                          __sysvec_apic_timer_interrupt
+                          hrtimer_interrupt
+                          __hrtimer_run_queues
+                          tick_nohz_highres_handler
+                          tick_sched_handle
+                          update_process_times
+                          scheduler_tick
+                          perf_event_task_tick
+                          perf_adjust_freq_unthr_context
+                          |          
+                          |--0.62%--x86_pmu_stop
+                          |          amd_pmu_disable_event
+                          |          amd_pmu_test_overflow_topbit
+                          |          native_read_msr
+                          |          
+                           --0.57%--x86_pmu_disable
+                                     amd_pmu_disable_all
+                                     amd_pmu_check_overflow
+                                     amd_pmu_test_overflow_topbit
+                                     native_read_msr
+
+     1.18%     0.00%  perf_target  [kernel.kallsyms]     [k] __split_vma
+            |
+            ---__split_vma
+               vm_area_dup
+               |          
+                --1.18%--asm_sysvec_apic_timer_interrupt
+                          sysvec_apic_timer_interrupt
+                          __sysvec_apic_timer_interrupt
+                          hrtimer_interrupt
+                          __hrtimer_run_queues
+                          tick_nohz_highres_handler
+                          tick_sched_handle
+                          update_process_times
+                          scheduler_tick
+                          perf_event_task_tick
+                          perf_adjust_freq_unthr_context
+                          |          
+                          |--0.62%--x86_pmu_stop
+                          |          amd_pmu_disable_event
+                          |          amd_pmu_test_overflow_topbit
+                          |          native_read_msr
+                          |          
+                           --0.57%--x86_pmu_disable
+                                     amd_pmu_disable_all
+                                     amd_pmu_check_overflow
+                                     amd_pmu_test_overflow_topbit
+                                     native_read_msr
+
+     0.92%     0.92%  perf_target  [kernel.kallsyms]     [k] amd_pmu_addr_offset
+            |
+            ---0
+               main
+               asm_sysvec_apic_timer_interrupt
+               sysvec_apic_timer_interrupt
+               __sysvec_apic_timer_interrupt
+               hrtimer_interrupt
+               __hrtimer_run_queues
+               tick_nohz_highres_handler
+               tick_sched_handle
+               update_process_times
+               scheduler_tick
+               perf_event_task_tick
+               perf_adjust_freq_unthr_context
+               x86_pmu_disable
+               amd_pmu_disable_all
+               amd_pmu_check_overflow
+               amd_pmu_test_overflow_topbit
+               amd_pmu_addr_offset
+
+     0.57%     0.00%  perf_target  libc.so.6             [.] _exit
+            |
+            ---_exit
+               entry_SYSCALL_64_after_hwframe
+               do_syscall_64
+               x64_sys_call
+               __x64_sys_exit_group
+               do_group_exit
+               do_exit
+               perf_event_exit_task
+               ctx_sched_out
+               __pmu_ctx_sched_out
+               x86_pmu_disable
+               amd_pmu_disable_all
+               amd_pmu_check_overflow
+               amd_pmu_test_overflow_topbit
+               native_read_msr
+
+     0.57%     0.00%  perf_target  [kernel.kallsyms]     [k] __x64_sys_exit_group
+            |
+            ---__x64_sys_exit_group
+               do_group_exit
+               do_exit
+               perf_event_exit_task
+               ctx_sched_out
+               __pmu_ctx_sched_out
+               x86_pmu_disable
+               amd_pmu_disable_all
+               amd_pmu_check_overflow
+               amd_pmu_test_overflow_topbit
+               native_read_msr
+
+     0.57%     0.00%  perf_target  [kernel.kallsyms]     [k] do_group_exit
+            |
+            ---do_group_exit
+               do_exit
+               perf_event_exit_task
+               ctx_sched_out
+               __pmu_ctx_sched_out
+               x86_pmu_disable
+               amd_pmu_disable_all
+               amd_pmu_check_overflow
+               amd_pmu_test_overflow_topbit
+               native_read_msr
+
+     0.57%     0.00%  perf_target  [kernel.kallsyms]     [k] do_exit
+            |
+            ---do_exit
+               perf_event_exit_task
+               ctx_sched_out
+               __pmu_ctx_sched_out
+               x86_pmu_disable
+               amd_pmu_disable_all
+               amd_pmu_check_overflow
+               amd_pmu_test_overflow_topbit
+               native_read_msr
+
+     0.57%     0.00%  perf_target  [kernel.kallsyms]     [k] perf_event_exit_task
+            |
+            ---perf_event_exit_task
+               ctx_sched_out
+               __pmu_ctx_sched_out
+               x86_pmu_disable
+               amd_pmu_disable_all
+               amd_pmu_check_overflow
+               amd_pmu_test_overflow_topbit
+               native_read_msr
+
+     0.57%     0.00%  perf_target  [kernel.kallsyms]     [k] ctx_sched_out
+            |
+            ---ctx_sched_out
+               __pmu_ctx_sched_out
+               x86_pmu_disable
+               amd_pmu_disable_all
+               amd_pmu_check_overflow
+               amd_pmu_test_overflow_topbit
+               native_read_msr
+
+     0.57%     0.00%  perf_target  [kernel.kallsyms]     [k] __pmu_ctx_sched_out
+            |
+            ---__pmu_ctx_sched_out
+               x86_pmu_disable
+               amd_pmu_disable_all
+               amd_pmu_check_overflow
+               amd_pmu_test_overflow_topbit
+               native_read_msr
+
+     0.54%     0.54%  perf_target  [kernel.kallsyms]     [k] native_write_msr
+            |
+            ---0
+               main
+               asm_sysvec_apic_timer_interrupt
+               sysvec_apic_timer_interrupt
+               __sysvec_apic_timer_interrupt
+               hrtimer_interrupt
+               tick_program_event
+               clockevents_program_event
+               lapic_next_event
+               native_write_msr
+
+     0.54%     0.00%  perf_target  [kernel.kallsyms]     [k] tick_program_event
+            |
+            ---tick_program_event
+               clockevents_program_event
+               lapic_next_event
+               native_write_msr
+
+     0.54%     0.00%  perf_target  [kernel.kallsyms]     [k] clockevents_program_event
+            |
+            ---clockevents_program_event
+               lapic_next_event
+               native_write_msr
+
+     0.54%     0.00%  perf_target  [kernel.kallsyms]     [k] lapic_next_event
+            |
+            ---lapic_next_event
+               native_write_msr
+
+     0.48%     0.48%  perf_target  ld-linux-x86-64.so.2  [.] update_active.constprop.0
+     0.45%     0.45%  perf_target  ld-linux-x86-64.so.2  [.] check_match
+     0.41%     0.41%  perf_target  [kernel.kallsyms]     [k] __rcu_read_unlock
+     0.41%     0.00%  perf_target  [kernel.kallsyms]     [k] asm_exc_page_fault
+     0.41%     0.00%  perf_target  [kernel.kallsyms]     [k] exc_page_fault
+     0.41%     0.00%  perf_target  [kernel.kallsyms]     [k] do_user_addr_fault
+
+
+#
+# (Cannot load tips.txt file, please install perf!)
+#

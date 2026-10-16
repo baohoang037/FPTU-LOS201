@@ -1,8 +1,12 @@
-obj-m += Assignment1.o
-KDIR :=/lib/modules/$(shell uname -r)/build
-PWD := $(shell pwd)
+obj-m += asgn1_driver.o
+KDIR ?= $(HOME)/embedded_lab1/kernel/linux-5.15
+ARCH ?= arm
+CROSS_COMPILE ?= arm-linux-gnueabi-
 
 all:
-	make -C $(KDIR) M=$(PWD) modules
+	$(MAKE) -C $(KDIR) M=$(PWD) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) modules
+	$(CROSS_COMPILE)gcc -Wall -static -o asgn1_user asgn1_user.c
+
 clean:
-	make -C $(KDIR) M=$(PWD) clean
+	$(MAKE) -C $(KDIR) M=$(PWD) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) clean
+	rm -f asgn1_user
