@@ -51,8 +51,8 @@ This repository contains all experimental deliverables, kernel source modificati
 - **`assignment02_sensor_monitoring/`**: Real-Time Multi-Threaded Sensor Monitoring System (SMS).
   * `driver/`: Kernel character device driver simulating environmental sensor hardware (`sms_sensor_driver.c`, `sms_sensor.h`).
   * `app/`: Multi-threaded POSIX real-time application source (`sms_app.c`, `circular_buffer.c`, `test_circular_buffer.c`, worker threads, `measure_memory.sh`).
-  * `logs/`: Verifiable runtime execution and profiling logs (`perf_sms.txt`, `strace_sms.txt`, `valgrind_sms.txt`, `proc_sms_maps.txt`, `/proc/sms_stats` snapshots).
-  * `docs/`: High-level system architecture diagram and 13 experimental verification screenshots (`01_project_structure.png` to `13_cross_compile_arm.png`).
+  * `logs/`: 8 verifiable runtime execution and profiling logs (`perf_sms.txt`, `strace_sms.txt`, `valgrind_sms.txt`, `proc_sms_maps.txt`, `/proc/sms_stats` snapshots).
+  * `docs/`: System architecture diagram and 13 experimental verification screenshots (`01_project_structure.png` to `13_cross_compile_arm.png`).
   * `report/`: Formal technical engineering report in PDF format (`assignment 2.pdf`).
 - **`.gitignore`**: High-performance Git filter excluding raw multi-gigabyte kernel build trees and object artifacts.
 
@@ -174,6 +174,8 @@ The driver bridges userspace system call requests with physical/emulated hardwar
 ### 1. Overview
 This assignment focuses on Linux device driver development in an embedded Linux environment. It consists of two tasks: extending a character device driver with IOCTL commands and implementing a counter driver using the Linux miscellaneous device framework.
 
+<img width="375" height="343" alt="image" src="https://github.com/user-attachments/assets/c28b2057-6f8a-47a7-99a8-bc6bc822ff66" />
+
 ### 2. Objectives
 - Understand the basic structure of a Linux device driver.
 - Extend a character device driver with custom IOCTL commands.
@@ -207,19 +209,18 @@ assignment01/
 │   ├── asgn1_driver.c
 │   ├── asgn1_ioctl.h
 │   ├── Makefile
-│   ├── asgn1_driver.ko
+│   ├── asgn1_user.c
 │   └── test_asgn1.sh
 ├── task2_misc/
 │   ├── counter_driver.c
 │   ├── Makefile
-│   ├── counter_driver.ko
-│   └── test_counter.sh
-├── logs/
-│   ├── test_asgn1_output.txt
-│   ├── test_counter_output.txt
-│   └── dmesg_full.txt
-├── docs/
-│   └── architecture_diagram.png
+│   ├── counter_driver.mod
+│   ├── counter_driver.mod.c
+│   ├── counter_driver.mod.o
+│   ├── counter_driver.o
+│   └── test.sh
+│   ├── Module.symvers
+│   └── modules.order
 └── report/
     └── Asgn01.pdf
 ```
@@ -233,31 +234,42 @@ The Sensor Monitoring System (SMS) is an end-to-end, multi-threaded real-time em
 
 ![SMS Architecture Diagram](assignment02_sensor_monitoring/docs/architecture_diagram.png)
 
-### 2. Comprehensive Technical Highlights
+### 2. Task-by-Task Technical Highlights
 
-- **Kernel Character Device Driver Subsystem (`sms_sensor_driver.ko`):**
-  * **Device Node & VFS Interfacing:** Registered character device with dynamic Major allocation mapped to `/dev/sms_sensor`, implementing `open`, `read`, `llseek`, and `release`.
-  * **Rate Limiting & Defensive Error Handling:** Enforces a minimum hardware read interval (`g_min_interval_ms`). Reads requested before the interval expires return `-EAGAIN` to prevent hardware bus flooding.
-  * **ProcFS Diagnostics:** Exports cumulative read operations and error metrics via `/proc/sms_stats`.
+#### 📌 Task 1: Kernel Character Driver, Circular Buffer & Multi-Threaded Daemon
+- **Kernel Character Driver (`sms_sensor_driver.ko`):**
+  * Registers dynamic character device `/dev/sms_sensor` implementing `open`, `read`, `llseek`, and `release`.
+  * Implements defensive hardware rate-limiting (`g_min_interval_ms = 100ms`), returning `-EAGAIN` upon rapid calls to prevent bus flooding.
+  * Exports operational statistics to `/proc/sms_stats`.
+- **Thread-Safe Circular Buffer:**
+  * Fixed capacity of 64 slots synchronized via `pthread_mutex_t` and `pthread_cond_t`.
+  * Implements non-blocking drop-on-full semantics: increments `overflow_count` rather than stalling producer threads to preserve real-time sampling deadlines.
+- **POSIX Multi-Threading Pipeline & Message Queues:**
+  * **Sensor Thread:** Samples `/dev/sms_sensor` every 300ms using `clock_nanosleep(CLOCK_MONOTONIC)`.
+  * **Processor Thread:** Evaluates threshold violations (Temp > 40°C, Humid > 80%, Spike > 5°C) and dispatches messages via `mq_timedsend()` (50ms timeout).
+  * **Logger & Alert Workers:** Dedicated consumers handling file persistence (`/tmp/sms.log` with 1MB log rotation) and instant high-priority console alerting (`stderr`).
 
-- **Multi-Threaded Architecture & Thread-Safe Circular Buffer:**
-  * **Sensor Thread:** Periodically wakes up every 300ms using high-resolution monotonic timer `clock_nanosleep(CLOCK_MONOTONIC)`, reads raw CSV frames from `/dev/sms_sensor`, measures real-time jitter, and pushes samples to the circular buffer.
-  * **Circular Buffer:** 64-slot ring buffer synchronized with `pthread_mutex_t` and `pthread_cond_t` (`not_empty`, `not_full`). Implements non-blocking drop-on-full semantics to prevent slow consumers from stalling real-time acquisition.
-  * **Processor Thread:** Pops samples from the buffer, analyzes thermal/humidity thresholds (Temp > 40.0°C, Humid > 80.0%, Temp Spike > 5.0°C), and dispatches events.
-  * **Logger & Alert Workers:** Dedicated asynchronous workers handling persistent disk logging (`/tmp/sms.log` with 1MB log rotation) and instant high-priority console alerting (`stderr`).
+#### 📌 Task 2: Memory Footprint Tracking & Memory Leak Verification
+- **Valgrind Memcheck Verification:** 0 bytes definitely lost, 0 bytes indirectly lost, 0 bytes possibly lost, and 0 errors. All allocated memory and POSIX queue handles are cleanly released on termination.
+- **Memory Footprint Tracking (`/proc/[PID]/status`):**
+  * Initial (T=0s): VmSize = 104,180 kB | VmRSS = 2,752 kB
+  * Runtime (T=10s): VmSize = 104,180 kB | VmRSS = 2,884 kB (I/O page warming)
+  * Pre-exit (T=30s): VmSize = 104,180 kB | VmRSS = 2,888 kB (Strictly flat, variation < 0.14%)
+- **Virtual Memory Segmentation (`/proc/[PID]/maps`):** Verified discrete separation of Text, Data/BSS, Heap, and dedicated ~8MB stack allocations per worker thread with protective guard pages.
 
-- **POSIX Inter-Process Communication (IPC):**
-  * Communicates across thread domains using POSIX Message Queues (`/sms_log_queue` and `/sms_alarm_queue`).
-  * Producer operations utilize `mq_timedsend()` (50ms timeout) to prevent priority inversion and thread lockups during shutdown or consumer queue saturation.
+#### 📌 Task 3: Profiling, Tracing & Interactive GDB Debugging
+- **System Call Profiling (`strace -f -c`):** Top 5 syscalls dominated by `clock_nanosleep` (37.79%), `mq_timedreceive` (36.85%), and `futex` (17.58%), confirming an event-driven, I/O-bound architecture with zero CPU waste on polling.
+- **CPU Hotspot Call-Graph (`perf report`):** Resolved kernel symbols with `kptr_restrict=0`; 60.15% execution overhead concentrated in kernel waitqueues (`__x64_sys_mq_timedreceive` -> `schedule_hrtimeout_range_clock`).
+- **Interactive Multi-Thread Debugging (`GDB`):** Breakpoint set at `processor_thread.c:79`, state audited with `info threads`, and threshold alerting validated via variable injection (`set var sample.temperature = 45.0`).
 
-- **System Profiling & Dynamic Debugging:**
-  * **Syscall Tracing (`strace -f -c`):** Profiling across all child threads revealed top system calls dominated by `clock_nanosleep` (37.79%), `mq_timedreceive` (36.85%), and `futex` (17.58%), confirming an optimal event-driven, I/O-bound architecture.
-  * **CPU Hotspot Analysis (`perf record -g`):** Call-graph profiling with resolved kernel symbols (`kptr_restrict=0`) demonstrated execution overhead concentrated in kernel wait queues (`__x64_sys_mq_timedreceive` -> `schedule_hrtimeout_range_clock`), proving zero CPU waste on busy-waiting.
-  * **Interactive Debugging (`GDB` Multi-Thread Inspection):** Evaluated runtime behavior via thread inspection (`info threads`) and fault injection (`set var sample.temperature = 45.0`), validating instant threshold triggering and graceful thread termination.
-
-- **Real-Time Benchmarking & Cross-Compilation:**
-  * **Real-Time Determinism:** Configured the Sensor Thread with `SCHED_FIFO` real-time scheduling policy (Priority 50) and physical page locking via `mlockall(MCL_CURRENT | MCL_FUTURE)`. Benchmarking demonstrated elimination of tail latency outliers compared to standard `SCHED_OTHER`.
-  * **ARM Cross-Compilation:** Cross-compiled cleanly for 32-bit ARM architectures (`arm-linux-gnueabihf-gcc`) with architecture-safe 64-bit integer format specifiers (`%llu`).
+#### 📌 Task 4: Real-Time Determinism & ARM Portability
+- **Real-Time Jitter Quantification (`SCHED_FIFO` vs `SCHED_OTHER`):**
+  * Max Jitter reduced from 2,601 μs (2.6 ms) down to 285 μs (0.28 ms) — **89.1% latency reduction**.
+  * Physical RAM locking via `mlockall(MCL_CURRENT | MCL_FUTURE)` eliminated tail latency outliers.
+- **ARMv7-A Cross-Compilation:**
+  * Clean build using `arm-linux-gnueabihf-gcc`.
+  * Verified binary: `ELF 32-bit LSB pie executable, ARM, EABI5 version 1 (SYSV)`.
+  * Enforced cross-architecture 64-bit portability using explicit `(unsigned long long)` casting and `%llu` specifiers.
 
 ### 3. Project Structure
 
