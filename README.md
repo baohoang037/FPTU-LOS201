@@ -174,6 +174,8 @@ The driver bridges userspace system call requests with physical/emulated hardwar
 ### 1. Overview
 This assignment focuses on Linux device driver development in an embedded Linux environment. It consists of two tasks: extending a character device driver with IOCTL commands and implementing a counter driver using the Linux miscellaneous device framework.
 
+
+
 <img width="375" height="343" alt="image" src="https://github.com/user-attachments/assets/c28b2057-6f8a-47a7-99a8-bc6bc822ff66" />
 
 ### 2. Objectives
