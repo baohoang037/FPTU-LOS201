@@ -173,6 +173,7 @@ The driver bridges userspace system call requests with physical/emulated hardwar
 
 ### 1. Overview
 This assignment focuses on Linux device driver development in an embedded Linux environment. It consists of two tasks: extending a character device driver with IOCTL commands and implementing a counter driver using the Linux miscellaneous device framework.
+<img width="375" height="343" alt="image" src="https://github.com/user-attachments/assets/c28b2057-6f8a-47a7-99a8-bc6bc822ff66" />
 
 ### 2. Objectives
 - Understand the basic structure of a Linux device driver.
@@ -207,19 +208,18 @@ assignment01/
 │   ├── asgn1_driver.c
 │   ├── asgn1_ioctl.h
 │   ├── Makefile
-│   ├── asgn1_driver.ko
+│   ├── asgn1_user.c
 │   └── test_asgn1.sh
 ├── task2_misc/
 │   ├── counter_driver.c
 │   ├── Makefile
-│   ├── counter_driver.ko
-│   └── test_counter.sh
-├── logs/
-│   ├── test_asgn1_output.txt
-│   ├── test_counter_output.txt
-│   └── dmesg_full.txt
-├── docs/
-│   └── architecture_diagram.png
+│   ├── counter_driver.mod
+│   ├── counter_driver.mod.c
+│   ├── counter_driver.mod.o
+│   ├── counter_driver.o
+│   └── test.sh
+│   ├── Module.symvers
+│   ├── modules.order
 └── report/
     └── Asgn01.pdf
 ```
