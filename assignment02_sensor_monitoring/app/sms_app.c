@@ -142,10 +142,10 @@ int main(int argc, char *argv[])
 
     printf("\n================ SYSTEM SUMMARY ================\n");
     printf("Elapsed Runtime         : %d seconds\n", elapsed);
-    printf("Total Samples Read      : %lu\n", sensor_ctx.total_samples_read);
-    printf("Total Samples Processed : %lu\n", proc_ctx.total_processed);
-    printf("Buffer Overflows        : %lu\n", cb_stats.overflow_count);
-    printf("Total Logs Written      : %lu\n", logger_ctx.total_logs_written);
+    printf("Total Samples Read      : %llu\n", (unsigned long long)sensor_ctx.total_samples_read);
+    printf("Total Samples Processed : %llu\n", (unsigned long long)proc_ctx.total_processed);
+    printf("Buffer Overflows        : %llu\n", (unsigned long long)cb_stats.overflow_count);
+    printf("Total Logs Written      : %llu\n", (unsigned long long)logger_ctx.total_logs_written);
     printf("Alerts Summary:\n");
     printf("  - High Temperature    : %u\n", alert_ctx.count_temp_high);
     printf("  - High Humidity       : %u\n", alert_ctx.count_humid_high);

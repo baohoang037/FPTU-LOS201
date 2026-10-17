@@ -112,14 +112,14 @@ void *sensor_thread_func(void *arg)
                 ctx->total_samples_read++;
 
                 if (ctx->verbose) {
-                    printf("[SENSOR] Sample #%lu: Time=%llu, Temp=%.2f C, Humid=%.2f %%\n",
-                           ctx->total_samples_read, (unsigned long long)sample.timestamp_ms,
+                    printf("[SENSOR] Sample #%llu: Time=%llu, Temp=%.2f C, Humid=%.2f %%\n",
+                           (unsigned long long)ctx->total_samples_read, (unsigned long long)sample.timestamp_ms,
                            sample.temperature, sample.humidity);
                 }
 
                 if (!circular_buffer_push(ctx->buffer, &sample)) {
-                    fprintf(stderr, "[WARN] Circular buffer full! Dropping sample #%lu\n",
-                            ctx->total_samples_read);
+                    fprintf(stderr, "[WARN] Circular buffer full! Dropping sample #%llu\n",
+                            (unsigned long long)ctx->total_samples_read);
                 }
             }
         }

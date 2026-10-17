@@ -1,5 +1,5 @@
 CC ?= gcc
-CFLAGS ?= -Wall -Wextra -pthread -I. -O2
+CFLAGS ?= -Wall -Wextra -pthread -I. -O2 -g
 LDFLAGS ?= -pthread -lrt -lm
 
 ARM_CC = arm-linux-gnueabihf-gcc
