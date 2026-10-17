@@ -1,19 +1,22 @@
-# Build artifacts
+# ==========================================
+# 1. Chặn tất cả file rác trung gian khi build
+# ==========================================
 *.o
-*.ko
 *.mod
 *.mod.c
 *.mod.o
-*.order
-*.symvers
-*.cmd
+.*.cmd
 .tmp_versions/
+modules.order
+Module.symvers
 
-# Binaries
-app/sms_app
-app/sms_app_x86
-
-# Large files
-output/*.cpio.gz
-demo/*.mp4
-logs/*.log*
+# ==========================================
+# 2. Mở khóa (Whitelist) đúng các file đề bài yêu cầu nộp
+# ==========================================
+!sms_sensor_driver.ko
+!sms_app
+!sms_app_x86
+!initramfs_asgn2.cpio.gz
+!*.pdf
+!*.docx
+!*.log
