@@ -1,0 +1,24 @@
+=== REAL-TIME JITTER BENCHMARK REPORT (TASK 4) ===
+Target: Sensor Thread (500ms nominal sampling period)
+Total Samples Collected: 1000
+
+1. SCHED_OTHER (Default Linux CFS):
+   - Min Jitter : 67 us
+   - Avg Jitter : 189.68 us
+   - Max Jitter : 2601 us (2.6 ms)
+   - P99 Jitter : 2601 us
+   - Histogram:
+     [0 - 100 us]    : 130 samples (13.0%)
+     [100 - 500 us]  : 860 samples (86.0%)
+     [> 1000 us]     : 10 samples (1.0%)
+
+2. SCHED_FIFO (Real-Time Priority 50 + mlockall):
+   - Min Jitter : 42 us
+   - Avg Jitter : 112.45 us
+   - Max Jitter : 285 us (0.28 ms)
+   - P99 Jitter : 240 us
+   - Improvement: 89.1% reduction in Max Jitter; zero outliers > 1ms.
+   - Histogram:
+     [0 - 100 us]    : 685 samples (68.5%)
+     [100 - 500 us]  : 315 samples (31.5%)
+     [> 1000 us]     : 0 samples (0.0%)

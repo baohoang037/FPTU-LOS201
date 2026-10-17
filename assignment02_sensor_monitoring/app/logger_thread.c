@@ -1,6 +1,6 @@
 /**
  * @file logger_thread.c
- * @brief Implementation of Logger Thread
+ * @brief Implementation of Logger Thread with Timed Send
  * @author Hoang Ngoc Gia Bao
  * @date 2026-10-08
  */
@@ -22,9 +22,6 @@ static void check_and_rotate_log(FILE **fp)
         fclose(*fp);
         rename(LOG_FILE_PATH, LOG_BACKUP_PATH);
         *fp = fopen(LOG_FILE_PATH, "a");
-        if (!*fp) {
-            perror("Failed to recreate log file after rotation");
-        }
     }
 }
 
@@ -36,7 +33,7 @@ int logger_init(logger_context_t *ctx)
 
     struct mq_attr attr;
     attr.mq_flags = 0;
-    attr.mq_maxmsg = 10; /* Standard Linux unprivileged limit */
+    attr.mq_maxmsg = 10;
     attr.mq_msgsize = sizeof(log_msg_t);
     attr.mq_curmsgs = 0;
 
@@ -56,7 +53,15 @@ bool logger_send(logger_context_t *ctx, const char *msg)
     strncpy(item.message, msg, LOG_MSG_MAX_LEN - 1);
     item.message[LOG_MSG_MAX_LEN - 1] = '\0';
 
-    if (mq_send(ctx->log_mq, (const char *)&item, sizeof(item), 0) != 0) {
+    struct timespec ts;
+    clock_gettime(CLOCK_REALTIME, &ts);
+    ts.tv_nsec += 50000000L; /* Timeout 50ms */
+    if (ts.tv_nsec >= 1000000000L) {
+        ts.tv_sec += 1;
+        ts.tv_nsec -= 1000000000L;
+    }
+
+    if (mq_timedsend(ctx->log_mq, (const char *)&item, sizeof(item), 0, &ts) != 0) {
         return false;
     }
     return true;
@@ -93,7 +98,7 @@ void *logger_thread_func(void *arg)
     while (ctx->running) {
         struct timespec ts;
         clock_gettime(CLOCK_REALTIME, &ts);
-        ts.tv_sec += 1; /* Wait up to 1s to allow periodic flush */
+        ts.tv_sec += 1;
 
         ssize_t bytes_read = mq_timedreceive(ctx->log_mq, (char *)&item, sizeof(item), NULL, &ts);
         if (bytes_read > 0) {
@@ -105,7 +110,6 @@ void *logger_thread_func(void *arg)
             check_and_rotate_log(&fp);
         }
 
-        /* Flush periodically every 5 seconds */
         time_t now = time(NULL);
         if (now - last_flush_time >= 5) {
             fflush(fp);
@@ -113,7 +117,6 @@ void *logger_thread_func(void *arg)
         }
     }
 
-    /* Final flush before shutdown */
     fflush(fp);
     fclose(fp);
     return NULL;
