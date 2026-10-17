@@ -163,7 +163,7 @@ assignment01/
 ## 🔬 Assignment 02 – Sensor Monitoring System (SMS)
 
 ### 1. Architectural Overview & System Flow
-The Sensor Monitoring System (SMS) is an end-to-end, multi-threaded real-time embedded Linux monitoring suite[cite: 4]. It samples simulated environmental sensor hardware via a dedicated kernel character driver, buffers samples safely across asynchronous producer-consumer boundaries using a thread-safe ring buffer, processes threshold alerts, and dispatches data across POSIX IPC pipelines[cite: 4].
+The Sensor Monitoring System (SMS) is an end-to-end, multi-threaded real-time embedded Linux monitoring suite. It samples simulated environmental sensor hardware via a dedicated kernel character driver, buffers samples safely across asynchronous producer-consumer boundaries using a thread-safe ring buffer, processes threshold alerts, and dispatches data across POSIX IPC pipelines.
 
 #### System Architecture & IPC Data Flow
 ![SMS Architecture Diagram](assignment02_sensor_monitoring/docs/architecture_diagram.png)
@@ -175,43 +175,43 @@ The Sensor Monitoring System (SMS) is an end-to-end, multi-threaded real-time em
 
 ### 2. Task-by-Task Implementation Summary & Technical Evaluation
 
-#### 📌 Task 1: Architecture & Multi-Threaded Application Implementation (30 pts)[cite: 4]
+#### 📌 Task 1: Architecture & Multi-Threaded Application Implementation (30 pts)
 - **Kernel Character Driver Subsystem (`sms_sensor_driver.ko`):**
-  * Registers dynamic character device `/dev/sms_sensor` implementing `open()`, `read()`, `llseek()`, and `release()`[cite: 4].
-  * Emits formatted CSV sample strings: `<timestamp_ms>,<temperature>,<humidity>\n`[cite: 4].
-  * Implements defensive hardware rate-limiting (`g_min_interval_ms = 100ms`), returning `-EAGAIN` upon rapid calls to prevent bus flooding[cite: 4].
-  * Supports runtime configuration via `ioctl(SMS_SET_INTERVAL)` and exports cumulative telemetry to `/proc/sms_stats`[cite: 4].
+  * Registers dynamic character device `/dev/sms_sensor` implementing `open()`, `read()`, `llseek()`, and `release()`.
+  * Emits formatted CSV sample strings: `<timestamp_ms>,<temperature>,<humidity>\n`.
+  * Implements defensive hardware rate-limiting (`g_min_interval_ms = 100ms`), returning `-EAGAIN` upon rapid calls to prevent bus flooding.
+  * Supports runtime configuration via `ioctl(SMS_SET_INTERVAL)` and exports cumulative telemetry to `/proc/sms_stats`.
 - **Thread-Safe Circular Ring Buffer:**
-  * Fixed capacity of 64 slots allocated once on heap; synchronized via `pthread_mutex_t` and dual condition variables (`not_empty`, `not_full`)[cite: 4].
-  * Implements non-blocking drop-on-full semantics: increments `overflow_count` rather than stalling producer threads to preserve real-time sampling deadlines[cite: 4].
+  * Fixed capacity of 64 slots allocated once on heap; synchronized via `pthread_mutex_t` and dual condition variables (`not_empty`, `not_full`).
+  * Implements non-blocking drop-on-full semantics: increments `overflow_count` rather than stalling producer threads to preserve real-time sampling deadlines.
 - **POSIX Multi-Threading Pipeline & Message Queues:**
-  * **Sensor Thread:** Periodically samples `/dev/sms_sensor` every 500ms using `clock_nanosleep(CLOCK_MONOTONIC)`[cite: 4].
-  * **Processor Thread:** Calculates 10-sample rolling averages, evaluates threshold violations (Temp > 40°C, Humid > 80%, Spike > 5°C), and dispatches messages via `mq_timedsend()` (50ms timeout)[cite: 4].
-  * **Logger & Alert Workers:** Dedicated consumers handling file persistence (`/tmp/sms.log` with 1MB log rotation and 5s periodic flushing) and instant high-priority console alerting (`stderr`)[cite: 4].
+  * **Sensor Thread:** Periodically samples `/dev/sms_sensor` every 500ms using `clock_nanosleep(CLOCK_MONOTONIC)`.
+  * **Processor Thread:** Calculates 10-sample rolling averages, evaluates threshold violations (Temp > 40°C, Humid > 80%, Spike > 5°C), and dispatches messages via `mq_timedsend()` (50ms timeout).
+  * **Logger & Alert Workers:** Dedicated consumers handling file persistence (`/tmp/sms.log` with 1MB log rotation and 5s periodic flushing) and instant high-priority console alerting (`stderr`).
 
-#### 📌 Task 2: Memory Management & Driver Integration Audit (20 pts)[cite: 4]
-- **Valgrind Memcheck Verification:** 0 bytes definitely lost, 0 bytes indirectly lost, 0 bytes possibly lost, and 0 errors[cite: 4]. All allocated memory and POSIX queue handles are cleanly released on SIGINT[cite: 4].
+#### 📌 Task 2: Memory Management & Driver Integration Audit (20 pts)
+- **Valgrind Memcheck Verification:** 0 bytes definitely lost, 0 bytes indirectly lost, 0 bytes possibly lost, and 0 errors. All allocated memory and POSIX queue handles are cleanly released on SIGINT.
 - **Memory Footprint Tracking (`/proc/[PID]/status`):**
-  * Evaluated across 3 distinct checkpoints: T=5s (Init: VmRSS=2,752 kB), T=30s (Steady: VmRSS=2,884 kB), T=55s (Pre-exit: VmRSS=2,888 kB)[cite: 4]. Demonstrates absolute curve flattening (<0.14% variation) confirming zero heap fragmentation.
-- **Virtual Memory Segmentation (`/proc/[PID]/maps`):** Verified discrete separation of Text, Data/BSS, Heap, and dedicated ~8MB stack allocations per worker thread with protective guard pages[cite: 4].
+  * Evaluated across 3 distinct checkpoints: T=5s (Init: VmRSS=2,752 kB), T=30s (Steady: VmRSS=2,884 kB), T=55s (Pre-exit: VmRSS=2,888 kB). Demonstrates absolute curve flattening (<0.14% variation) confirming zero heap fragmentation.
+- **Virtual Memory Segmentation (`/proc/[PID]/maps`):** Verified discrete separation of Text, Data/BSS, Heap, and dedicated ~8MB stack allocations per worker thread with protective guard pages.
 
-#### 📌 Task 3: Profiling, Tracing & Interactive GDB Debugging (20 pts)[cite: 4]
-- **System Call Profiling (`strace -c`):** Top 5 syscalls dominated by `clock_nanosleep` (37.79%), `mq_timedreceive` (36.85%), and `futex` (17.58%), confirming an event-driven, I/O-bound architecture with zero CPU waste on polling[cite: 4].
-- **CPU Hotspot Call-Graph (`perf report`):** Resolved kernel symbols with `kptr_restrict=0`; 60.15% execution overhead concentrated in kernel waitqueues (`__x64_sys_mq_timedreceive` -> `schedule_hrtimeout_range_clock`)[cite: 4].
-- **Interactive Multi-Thread Debugging (`GDB Scenario B`):** Breakpoint set at `processor_thread.c:79`, state audited with `info threads`, and threshold alerting validated via variable injection (`set var sample.temperature = 45.0`)[cite: 4].
+#### 📌 Task 3: Profiling, Tracing & Interactive GDB Debugging (20 pts)
+- **System Call Profiling (`strace -c`):** Top 5 syscalls dominated by `clock_nanosleep` (37.79%), `mq_timedreceive` (36.85%), and `futex` (17.58%), confirming an event-driven, I/O-bound architecture with zero CPU waste on polling.
+- **CPU Hotspot Call-Graph (`perf report`):** Resolved kernel symbols with `kptr_restrict=0`; 60.15% execution overhead concentrated in kernel waitqueues (`__x64_sys_mq_timedreceive` -> `schedule_hrtimeout_range_clock`).
+- **Interactive Multi-Thread Debugging (`GDB Scenario B`):** Breakpoint set at `processor_thread.c:79`, state audited with `info threads`, and threshold alerting validated via variable injection (`set var sample.temperature = 45.0`).
 
-#### 📌 Task 4: Real-Time Determinism & ARM Portability (15 pts)[cite: 4]
+#### 📌 Task 4: Real-Time Determinism & ARM Portability (15 pts)
 - **Real-Time Jitter Quantification (`SCHED_FIFO` vs `SCHED_OTHER`):**
-  * Max Jitter reduced from 2,601 μs (2.6 ms) down to 285 μs (0.28 ms) — **89.1% latency reduction**[cite: 4].
-  * Physical RAM locking via `mlockall(MCL_CURRENT | MCL_FUTURE)` eliminated page fault latency spikes[cite: 4].
+  * Max Jitter reduced from 2,601 μs (2.6 ms) down to 285 μs (0.28 ms) — **89.1% latency reduction**.
+  * Physical RAM locking via `mlockall(MCL_CURRENT | MCL_FUTURE)` eliminated page fault latency spikes.
 - **ARMv7-A Cross-Compilation:**
-  * Clean build using `arm-linux-gnueabihf-gcc`[cite: 4].
-  * Verified binary: `ELF 32-bit LSB pie executable, ARM, EABI5 version 1 (SYSV)`[cite: 4].
-  * Enforced cross-architecture 64-bit portability using explicit `(unsigned long long)` casting and `%llu` specifiers[cite: 4].
+  * Clean build using `arm-linux-gnueabihf-gcc`.
+  * Verified binary: `ELF 32-bit LSB pie executable, ARM, EABI5 version 1 (SYSV)`.
+  * Enforced cross-architecture 64-bit portability using explicit `(unsigned long long)` casting and `%llu` specifiers.
 
-#### 📌 Task 5: Technical Report, Synchronization Proof & Demo (15 pts)[cite: 4]
-- **Formal Technical Report:** Complete engineering documentation (`report/assignment 2.pdf`) covering architectural decisions, thread synchronization proofs, Coffman deadlock elimination, empirical benchmarks, and student reflection[cite: 4].
-- **Video Demonstration:** 3–5 minute comprehensive screencast showcasing driver insertion, verbose execution, live alert triggering, log verification, and graceful shutdown[cite: 4].
+#### 📌 Task 5: Technical Report, Synchronization Proof & Demo (15 pts)
+- **Formal Technical Report:** Complete engineering documentation (`report/assignment 2.pdf`) covering architectural decisions, thread synchronization proofs, Coffman deadlock elimination, empirical benchmarks, and student reflection.
+- **Video Demonstration:** 3–5 minute comprehensive screencast showcasing driver insertion, verbose execution, live alert triggering, log verification, and graceful shutdown.
 
 ---
 
