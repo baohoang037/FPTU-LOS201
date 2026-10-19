@@ -38,7 +38,7 @@ This repository contains all experimental deliverables, kernel source modificati
   * [`driver/`](./lab02_device_driver/driver/): Kernel module source and compiled binary ([`lab2_driver.c`](./lab02_device_driver/driver/lab2_driver.c), [`lab2_driver.ko`](./lab02_device_driver/driver/lab2_driver.ko), [`Makefile`](./lab02_device_driver/driver/Makefile)).
   * [`rootfs/`](./lab02_device_driver/rootfs/): Validation shell scripts ([`test_driver.sh`](./lab02_device_driver/rootfs/test_driver.sh), [`test_procfs.sh`](./lab02_device_driver/rootfs/test_procfs.sh)).
   * [`logs/`](./lab02_device_driver/logs/): Execution terminal outputs ([`boot_log.txt`](./lab02_device_driver/logs/boot_log.txt), [`driver_test.txt`](./lab02_device_driver/logs/driver_test.txt), [`mtd_jffs2.txt`](./lab02_device_driver/logs/mtd_jffs2.txt)).
-  * [`docs/`](./lab02_device_driver/docs/): Architectural diagrams ([`architecture_diagram.png`](./lab02_device_driver/docs/architecture_diagram.png)).
+  * [`docs/`](./lab02_device_driver/docs/): Architectural diagrams ([`architecture_diagram.png?v=2`](./lab02_device_driver/docs/architecture_diagram.png?v=2)).
   * [`report/`](./lab02_device_driver/report/): Formal technical PDF laboratory report ([`SE203238_Lab02_BaoCao.pdf`](./lab02_device_driver/report/SE203238_Lab02_BaoCao.pdf)).
 
 - [`lab03_open_source/`](./lab03_open_source/): Open Source Development Workflow & Community Contribution.
@@ -53,7 +53,7 @@ This repository contains all experimental deliverables, kernel source modificati
   * [`app/`](./assignment02_sensor_monitoring/app/): Multi-threaded daemon source ([`sms_app.c`](./assignment02_sensor_monitoring/app/sms_app.c), [`circular_buffer.c`](./assignment02_sensor_monitoring/app/circular_buffer.c), [`measure_memory.sh`](./assignment02_sensor_monitoring/app/measure_memory.sh)).
   * [`output/`](./assignment02_sensor_monitoring/output/): Standalone boot image ([`initramfs_asgn2.cpio.gz`](./assignment02_sensor_monitoring/output/initramfs_asgn2.cpio.gz)).
   * [`logs/`](./assignment02_sensor_monitoring/logs/): 8 verifiable runtime logs ([`perf_sms.txt`](./assignment02_sensor_monitoring/logs/perf_sms.txt), [`strace_sms.txt`](./assignment02_sensor_monitoring/logs/strace_sms.txt), [`valgrind_sms.txt`](./assignment02_sensor_monitoring/logs/valgrind_sms.txt), etc.).
-  * [`docs/`](./assignment02_sensor_monitoring/docs/): Engineering diagrams ([`architecture_diagram.png`](./assignment02_sensor_monitoring/docs/architecture_diagram.png), [`state_machine_diagram.png`](./assignment02_sensor_monitoring/docs/state_machine_diagram.png), screenshots `01_` to `13_`).
+  * [`docs/`](./assignment02_sensor_monitoring/docs/): Engineering diagrams ([`architecture_diagram.png?v=2`](./assignment02_sensor_monitoring/docs/architecture_diagram.png?v=2), [`state_machine_diagram.png?v=2`](./assignment02_sensor_monitoring/docs/state_machine_diagram.png?v=2), screenshots `01_` to `13_`).
   * [`report/`](./assignment02_sensor_monitoring/report/): Academic engineering PDF report ([`assignment 2.pdf`](./assignment02_sensor_monitoring/report/assignment%202.pdf)).
 
 ---
@@ -78,7 +78,7 @@ LAB 01 focuses on configuring, building, and booting an Embedded Linux system fo
 ### 1. Architectural Overview & System Flow
 Bridges userspace system call requests with simulated hardware resources while maintaining strict kernel-space memory isolation and data integrity.
 
-![Architecture Diagram](./lab02_device_driver/docs/architecture_diagram.png)
+![Architecture Diagram](./lab02_device_driver/docs/architecture_diagram.png?v=2)
 
 ### 2. Comprehensive Technical Highlights
 - **Character Device Driver:** Registered at Major `240`, Minor `0` mapped to [`/dev/lab2`](./lab02_device_driver/driver/lab2_driver.c). Implemented zero-panic memory copying via `copy_to_user()` / `copy_from_user()`.
@@ -105,10 +105,10 @@ Extends kernel character device capabilities with custom IOCTL control codes and
 The Sensor Monitoring System (SMS) is an end-to-end, multi-threaded real-time embedded Linux monitoring suite. It samples simulated environmental sensor hardware via a dedicated kernel character driver, buffers samples across asynchronous boundaries, processes threshold alerts, and dispatches data across POSIX IPC pipelines.
 
 #### System Architecture & IPC Pipeline
-![SMS Architecture Diagram](./assignment02_sensor_monitoring/docs/architecture_diagram.png)
+![SMS Architecture Diagram](./assignment02_sensor_monitoring/docs/architecture_diagram.png?v=2)
 
 #### Finite State Machine (FSM) Lifecycle
-![SMS State Machine Diagram](./assignment02_sensor_monitoring/docs/state_machine_diagram.png)
+![SMS State Machine Diagram](./assignment02_sensor_monitoring/docs/state_machine_diagram.png?v=2)
 
 ---
 
@@ -251,7 +251,7 @@ tar -czvf SE203238_HoangNgocGiaBao_Asgn02.tar.gz assignment02_sensor_monitoring/
 | [`output/`](./assignment02_sensor_monitoring/output/) | [`initramfs_asgn2.cpio.gz`](./assignment02_sensor_monitoring/output/initramfs_asgn2.cpio.gz) | Standalone bootable root filesystem image |
 | [`logs/`](./assignment02_sensor_monitoring/logs/) | [`perf_sms.txt`](./assignment02_sensor_monitoring/logs/perf_sms.txt), [`strace_sms.txt`](./assignment02_sensor_monitoring/logs/strace_sms.txt), [`valgrind_sms.txt`](./assignment02_sensor_monitoring/logs/valgrind_sms.txt) | Profiling, tracing, and memory audit verification logs |
 | [`logs/`](./assignment02_sensor_monitoring/logs/) | [`proc_sms_stats_before.txt`](./assignment02_sensor_monitoring/logs/proc_sms_stats_before.txt), [`jitter_report.txt`](./assignment02_sensor_monitoring/logs/jitter_report.txt), [`sms.log`](./assignment02_sensor_monitoring/logs/sms.log) | ProcFS snapshots, real-time jitter benchmarks, and daemon log output |
-| [`docs/`](./assignment02_sensor_monitoring/docs/) | [`architecture_diagram.png`](./assignment02_sensor_monitoring/docs/architecture_diagram.png), [`state_machine_diagram.png`](./assignment02_sensor_monitoring/docs/state_machine_diagram.png) | System architecture & finite state machine schematics |
+| [`docs/`](./assignment02_sensor_monitoring/docs/) | [`architecture_diagram.png?v=2`](./assignment02_sensor_monitoring/docs/architecture_diagram.png?v=2), [`state_machine_diagram.png?v=2`](./assignment02_sensor_monitoring/docs/state_machine_diagram.png?v=2) | System architecture & finite state machine schematics |
 | [`report/`](./assignment02_sensor_monitoring/report/) | [`assignment 2.pdf`](./assignment02_sensor_monitoring/report/assignment%202.pdf) | Formal technical engineering report in PDF format |
 
 ---
