@@ -203,6 +203,25 @@ ls -l /mnt/jffs2
 
 ---
 
+## 🔬 Lab 03: Embedded Linux, Root Filesystem & Performance Analysis
+
+### 1. Project Overview
+
+This lab contains an Embedded Linux root filesystem image and a collection of C applications used for debugging, memory analysis, and performance investigation.
+
+### 2. Implementation Artifacts
+
+- **Applications ([`apps/`](./lab03_embedded_linux_rootfs/apps/)):** C source files and corresponding application binaries, including `buggy_app`, `leaky_app`, and `leaky_app_fixed`.
+- **Root Filesystem ([`output/`](./lab03_embedded_linux_rootfs/output/)):** Packaged root filesystem image [`initramfs_lab3.cpio.gz`](./lab03_embedded_linux_rootfs/output/initramfs_lab3.cpio.gz).
+- **Debugging and Profiling Evidence ([`logs/`](./lab03_embedded_linux_rootfs/logs/)):** GDB session logs, `strace` summaries, Valgrind reports, `perf` statistics and reports, a latency histogram, and a flame graph.
+- **Technical Report ([`report/`](./lab03_embedded_linux_rootfs/report/)):** [`SE204290.pdf`](./lab03_embedded_linux_rootfs/report/SE204290.pdf).
+
+### 3. Validation and Analysis Evidence
+
+The repository includes artifacts for examining application behavior and memory usage, reviewing debugger sessions, and analyzing performance measurements. Refer to the saved logs and report for the actual test procedures and recorded results.
+
+---
+
 ## 🔬 Assignment 01 – How to Write a Device Driver
 
 **Embedded Linux Systems (LOS201) · FPT University – Ho Chi Minh City Campus · Lecturer: Phạm Thế Vinh**
@@ -547,6 +566,7 @@ tar -czvf SE203238_HoangNgocGiaBao_Asgn02.tar.gz assignment02_sensor_monitoring/
 | [`report/`](./assignment02_sensor_monitoring/report/) | [`assignment 2.pdf`](./assignment02_sensor_monitoring/report/assignment%202.pdf) | Formal technical engineering report in PDF format |
 
 ---
+
 
 ## 🛠️ Team Collaboration Protocol
 
