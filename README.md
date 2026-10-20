@@ -66,17 +66,56 @@ This repository contains all experimental deliverables, kernel source modificati
 
 ### 1. Architectural Overview & System Flow
 
-LAB 01 focuses on configuring, building, and booting an Embedded Linux system for the ARMv7-A Cortex-A9 architecture using QEMU `vexpress-a9`. The boot flow consists of kernel cross-compilation, U-Boot bootloader preparation, BusyBox rootfs packaging, and boot verification.
+LAB 01 focuses on configuring, building, and booting an Embedded Linux system for the ARMv7-A Cortex-A9 architecture using QEMU `vexpress-a9`.
 
-<img width="341" height="197" alt="Lab 01 Boot Flow" src="https://github.com/user-attachments/assets/723a2bff-1f18-4bc8-b4ec-36f4b4209d71" />
+The complete boot flow consists of Linux Kernel configuration and cross-compilation, U-Boot bootloader preparation, BusyBox root filesystem construction, initramfs packaging, and final Linux system boot on QEMU.
+
+<img width="341" height="197" alt="image" src="https://github.com/user-attachments/assets/723a2bff-1f18-4bc8-b4ec-36f4b4209d71" />
 
 ### 2. Comprehensive Technical Highlights
-- **Cross-Compilation:** Linux Kernel `5.15.0 LTS` built with `arm-linux-gnueabihf-` using `vexpress_defconfig`.
-- **Bootloader & Userspace:** Statically compiled BusyBox rootfs packaged into [`initramfs.cpio.gz`](./lab01_kernel_boot/output/initramfs.cpio.gz), loaded via U-Boot on `ttyAMA0`.
-- **System Verification:** Verified active CPU topology via `/proc/cpuinfo`, memory layout via `/proc/meminfo`, and active mount points.
 
----
+- **Linux Kernel Configuration & Cross-Compilation:**
+  * Configured Linux Kernel `5.15.0 LTS` for the ARMv7-A Cortex-A9 platform.
+  * Used the `arm-linux-gnueabihf-` cross-compilation toolchain to build the kernel for ARM.
+  * Started from the `vexpress_defconfig` configuration for the QEMU Versatile Express platform.
+  * Enabled the required kernel features for initramfs support and the PL011 UART serial console.
+  * Generated the ARM kernel image `zImage` and the Device Tree Blob `vexpress-v2p-ca9.dtb`.
 
+- **U-Boot Bootloader & Root Filesystem:**
+  * Configured U-Boot for the `vexpress_ca9x4` platform.
+  * Built BusyBox as a statically linked ARMv7 userspace environment.
+  * Prepared the required directory structure including `/bin`, `/sbin`, `/usr`, `/dev`, `/proc`, `/sys`, `/etc`, etc.
+
+### 3. Project Structure
+
+```text
+lab01_kernel_boot/
+├── configs/
+│   ├── kernel.config
+│   └── busybox.config  
+├── output/
+│   ├── zImage
+│   ├── vexpress-v2p-ca9.dtb
+│   └── initramfs.cpio.gz
+├── report/
+│   └── Lab01.pdf
+└── rootfs/
+    └── initramfs/
+        ├── bin/
+        ├── dev/
+        ├── etc/
+        │   ├── inittab
+        │   └── init.d/
+        │       └── rcS
+        ├── lib/
+        ├── proc/
+        ├── sbin/
+        ├── sys/
+        ├── tmp/
+        ├── usr/
+        │   ├── bin/
+        │   └── sbin/
+        └── init
 ## 🔬 Lab 02: Writing Device Drivers & File System Management
 
 **Embedded Linux Systems (LOS201) · FPT University – Ho Chi Minh City Campus · Lecturer: Phạm Thế Vinh**
