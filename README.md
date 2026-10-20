@@ -41,7 +41,12 @@ This repository contains all experimental deliverables, kernel source modificati
   * [`docs/`](./lab02_device_driver/docs/): Architectural diagrams ([`architecture_diagram.png`](./lab02_device_driver/docs/architecture_diagram.png)).
   * [`report/`](./lab02_device_driver/report/): Formal technical PDF laboratory report ([`lab 2.pdf`](./lab02_device_driver/report/lab%202.pdf)).
 
-- [`lab03_open_source/`](./lab03_open_source/): Open Source Development Workflow & Community Contribution.
+- [`lab03_embedded_linux_rootfs/`](./lab03_embedded_linux_rootfs/): Embedded Linux Root Filesystem, Debugging & Performance Analysis.
+  - [`apps/`](./lab03_embedded_linux_rootfs/apps/): C application source code and compiled binaries (`buggy_app`, `buggy_app.c`, `leaky_app`, `leaky_app.c`, `leaky_app_fixed`, `leaky_app_fixed.c`, `perf_target.c`).
+  - [`output/`](./lab03_embedded_linux_rootfs/output/): Packaged root filesystem image (`initramfs_lab3.cpio.gz`).
+  - [`logs/`](./lab03_embedded_linux_rootfs/logs/): Debugging and profiling evidence (`gdb_session.txt`, `qemu_gdb.log`, `strace_summary.txt`, `valgrind_report.txt`, `perf_stat.txt`, `perf_report.txt`, `hist_standard.txt`, `flamegraph.svg`, `latency_histogram.png`).
+  - [`report/`](./lab03_embedded_linux_rootfs/report/): Formal technical PDF laboratory report (`SE204290.pdf`).
+  - [`src/`](./lab03_embedded_linux_rootfs/src/): Additional experimental binaries (`buggy_app.previous`, `perf_target_asan`).
 
 - [`assignment01/`](./assignment01/): Advanced Linux Architecture & System Programming (IOCTL & Misc Device).
   * [`task1_ioctl/`](./assignment01/task1_ioctl/): Extended character driver implementing 4 IOCTL commands ([`asgn1_driver.c`](./assignment01/task1_ioctl/asgn1_driver.c), [`asgn1_ioctl.h`](./assignment01/task1_ioctl/asgn1_ioctl.h), [`test_asgn1.sh`](./assignment01/task1_ioctl/test_asgn1.sh)).
