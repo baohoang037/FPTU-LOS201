@@ -89,16 +89,190 @@ Bridges userspace system call requests with simulated hardware resources while m
 
 ## 🔬 Assignment 01 – How to Write a Device Driver
 
-### 1. Overview & Objectives
-Extends kernel character device capabilities with custom IOCTL control codes and implements an autonomous counter device using the Linux `miscdevice` framework.
+**Embedded Linux Systems (LOS201) · FPT University – Ho Chi Minh City Campus · Lecturer: Phạm Thế Vinh**
 
-<img width="375" height="343" alt="Assignment 01 Architecture" src="https://github.com/user-attachments/assets/c28b2057-6f8a-47a7-99a8-bc6bc822ff66" />
+> `ioctl Interface | Misc Device | Driver Analysis | ARMv7 Target`
 
-- **Task 1 – Extend Driver with IOCTL:** Implemented `RESET_BUFFER`, `GET_STATS`, `SET_MODE`, and `GET_VERSION` in [`asgn1_driver.c`](./assignment01/task1_ioctl/asgn1_driver.c).
-- **Task 2 – Implement Counter Driver:** Registered `/dev/counter` via `misc_register()` in [`counter_driver.c`](./assignment01/task2_misc/counter_driver.c) with automatic dynamic minor allocation.
+### 1. Architectural Overview & ioctl Data Flow
+This assignment implements two independent Linux kernel drivers for the ARMv7 `vexpress-a9` target emulated by QEMU (Linux 5.15, Cortex-A9, 512 MB, initramfs). `asgn1_driver` extends the LAB-02 character driver with a four-command `ioctl` interface, an internal buffer, operation counters and two operating modes. `counter_driver` is a standalone misc device that exposes an atomic hardware-style counter through `/dev/counter` and `/proc/counter_info`. Both drivers are exercised from userspace by shell test scripts and a small ioctl test program.
+
+#### System Architecture
+
+<img width="419" height="277" alt="image" src="https://github.com/user-attachments/assets/cc385383-5ff5-4578-84dc-c90381848366" />
+
+### 2. Task-by-Task Implementation Summary & Technical Evaluation
+
+#### 📌 Task 1: ioctl Interface – `asgn1_driver` (40 pts)
+- **Driver Source ([`asgn1_driver.c`](./task1_ioctl/asgn1_driver.c), [`asgn1_ioctl.h`](./task1_ioctl/asgn1_ioctl.h)):**
+  * Registered with `register_chrdev()` on a hand-chosen major in 241–254; node `/dev/asgn1` is created with `mknod`. Implements `open()`, `read()`, `write()`, `release()` and `unlocked_ioctl`, plus `/proc/asgn1_info`.
+  * Three separated layers: **interface** (`file_operations`, ioctl dispatch), **operation** (mode handling, prefixing, statistics) and **data** (buffer, counters, version string).
+  * A `mutex` protects every access to the buffer and counters; `copy_to_user()` / `copy_from_user()` are used for all user ↔ kernel transfers (no `memcpy()`).
+  * `dmesg` logs every `open()`, `release()`, `write()` and each ioctl command; module unload prints a cleanup message.
+- **Shared Header ([`asgn1_ioctl.h`](./task1_ioctl/asgn1_ioctl.h)):** one header used by both the kernel module and the userspace test, defining the magic number, `struct asgn1_stats` and all four commands with `_IO` / `_IOR` / `_IOW`.
+
+| ioctl Command | Direction | Argument | Behavior |
+| :--- | :---: | :--- | :--- |
+| `ASGN1_RESET_BUFFER` | `_IO` | none | Clears the buffer, resets `write_count` and `read_count` to 0; `cat /dev/asgn1` then returns an empty string |
+| `ASGN1_GET_STATS` | `_IOR` | `struct asgn1_stats` | Returns `open_count`, `write_count`, `read_count`, `buffer_len`, `last_write_size` (and `mode`) via `copy_to_user()` |
+| `ASGN1_SET_MODE` | `_IOW` | `int` | Mode 0 (Kernel): prepends `[KERNEL]` to written data. Mode 1 (Echo, default): stores data unchanged. Other values return `-EINVAL` |
+| `ASGN1_GET_VERSION` | `_IOR` | `char[64]` | Returns the version string, bounded to the 64-byte userspace buffer |
+
+Any command outside these four returns `-ENOTTY`.
+
+- **Functional Test ([`test_asgn1.sh`](./task1_ioctl/test_asgn1.sh), [`asgn1_user.c`](./task1_ioctl/asgn1_user.c)):** runs inside QEMU; loads the module, creates `/dev/asgn1`, writes and reads back in both modes, calls all four ioctl commands, verifies RESET, sends invalid inputs and unloads the module.
+
+| Test Step | Observed Result | Verdict |
+| :--- | :--- | :---: |
+| `GET_STATS` after 3 writes and 3 reads | `open_count=10, write_count=3, read_count=3, buffer_len=4, last_write_size=4, mode=1` | ✅ PASS |
+| `GET_VERSION` | `asgn1_driver v1.0 - SE203437` | ✅ PASS |
+| `SET_MODE` back to Echo | Stored data has no `[KERNEL]` prefix | ✅ PASS |
+| `RESET_BUFFER` after a 16-byte write | `write_count`, `read_count`, `buffer_len` = 0; `cat` returns an empty string | ✅ PASS (4 checks) |
+| Unknown ioctl cmd `0x6b7f` | Driver logs "unknown ioctl cmd 0x6b7f"; returns `ENOTTY` (25) | ✅ PASS |
+| `SET_MODE = 5` | Returns `EINVAL` (22) | ✅ PASS |
+| `rmmod` and `dmesg` | "unloaded, cleanup done" printed; module no longer listed | ✅ PASS |
+| **Final result** | **17 passed, 0 failed** | ✅ ALL PASS |
 
 ---
 
+#### 📌 Task 2: Misc Device Driver – `counter_driver` (30 pts)
+- **Driver Source ([`counter_driver.c`](./task2_misc/counter_driver.c)):**
+  * Registered through a static `struct miscdevice` named `"counter"` with `misc_register()` / `misc_deregister()`; the kernel assigns major 10 (`MISC_MAJOR`), so `/dev/counter` exists right after `insmod`.
+  * **`read()`:** returns the current value as a decimal string with a trailing newline, then increments the counter (auto-increment on read). `*ppos` is handled so the second `read()` returns 0 and `cat` terminates.
+  * **`write()`:** copies the user string, parses it with `kstrtoint()` and sets the counter. Writing `0` resets it; negative or non-numeric input returns `-EINVAL`.
+  * **Thread safety:** the counter is an `atomic_t` accessed with `atomic_read()`, `atomic_set()` and `atomic_inc()`.
+  * **`/proc/counter_info`:** labelled lines for the current value, total reads (increments) and total writes (resets/sets).
+  * `MODULE_LICENSE`, `MODULE_AUTHOR` (name and student ID) and `MODULE_DESCRIPTION` are set.
+- **Functional Test ([`test.sh`](./task2_misc/test.sh)):** loads the module, prints `/proc/counter_info`, reads `/dev/counter` twice, writes `100`, reads it back, writes `0` to reset, prints `/proc/counter_info` again and unloads the module.
+
+| Step | Observed Output | Verdict |
+| :--- | :--- | :---: |
+| Initial `/proc/counter_info` | Current Counter Value: 0, Total Reads: 0, Total Writes: 0 | ✅ PASS |
+| Two reads of `/dev/counter` | `0` then `1` (auto-increment) | ✅ PASS |
+| Write `100`, then read | Read returns `100` | ✅ PASS |
+| Write `0` (reset) | Current Counter Value: 0 | ✅ PASS |
+| Final `/proc/counter_info` | Total Reads: 3, Total Writes: 2 | ✅ PASS (matches 3 reads, 2 writes) |
+| Unload module | Test completes without error | ✅ PASS |
+
+---
+
+#### 📌 Task 3: Analysis & Design Report (20 pts)
+- **Technical Report ([`Assignment_1.pdf`](./report/Assignment_1.pdf)):** 12-page PDF covering:
+  * **System architecture & project structure** with the high-level architecture diagram and driver interface specifications.
+  * **Character vs Block vs Network devices:** comparison by VFS interface, data unit, buffering and embedded examples, with three design decisions (I2C temperature sensor → char, eMMC → block, CAN controller → network stack).
+  * **`register_chrdev()` vs `misc_register()`:** major/minor handling, node creation, boilerplate, pros/cons and when to use each.
+  * **Why `atomic_t`:** a concrete lost-update race on a plain `int` (`counter++` = load/add/store), solved with `atomic_inc()` (`ldrex`/`strex` on ARMv7).
+  * **ioctl magic number and encoding:** `_IOC(dir, type, nr, size)` layout and the decoding of `0x6b7f` as `_IO('k', 127)`.
+  * **Experimental evidence matrix** cross-referencing every figure and screenshot.
+
+| Field | Bits | Macro | Example: `ASGN1_GET_VERSION = _IOR(ASGN1_MAGIC, 4, char[64])` |
+| :--- | :---: | :--- | :--- |
+| `dir` | 31–30 | `_IOC_DIR` | read |
+| `size` | 29–16 | `_IOC_SIZE` | 64 |
+| `type` (magic) | 15–8 | `_IOC_TYPE` | `ASGN1_MAGIC` |
+| `nr` | 7–0 | `_IOC_NR` | 4 |
+
+---
+
+#### 📌 Task 4: Theory Questions (10 pts)
+| Question | Key Technical Answer |
+| :--- | :--- |
+| **Q1.** Module reference counting | `try_module_get()` on open (via `.owner = THIS_MODULE`) and `module_put()` on release; shown in the "Used by" column of `lsmod`. `rmmod` on a busy module fails with `-EBUSY`; `rmmod -f` needs `CONFIG_MODULE_FORCE_UNLOAD`, taints the kernel and risks a crash. |
+| **Q2.** `copy_to_user()` vs `memcpy()` | User pointers are untrusted: `copy_to_user()` checks the range with `access_ok()` and uses exception-table fixups, returning bytes not copied instead of oopsing. Direct writes rely on the page-fault handler in kernel context, bypass SMAP/PAN protection and can corrupt kernel memory. |
+| **Q3.** MTD vs block device | Raw flash is erased in large blocks, wears out and has bad blocks/ECC (NAND), so it needs MTD plus flash-aware layers (UBI/UBIFS, JFFS2). Raw NAND and SPI/parallel NOR need MTD; eMMC and SD cards have an internal FTL and use the block layer. |
+| **Q4.** `*ppos` handling in `read()` | VFS passes `&file->f_pos`; `cat` loops until `read()` returns 0. Ignoring `*ppos` returns a positive count forever, so `cat` never sees EOF while the counter keeps incrementing. With the check, the 2nd call returns 0 and a new `open()` starts at `f_pos = 0`. |
+
+---
+
+### 3. Step-by-Step Reproduction Guide (How to Run)
+
+#### Step 1: Build Drivers & Userspace Test
+```bash
+# 1. Task 1 – ioctl driver (asgn1_driver.ko) and userspace test program
+cd task1_ioctl
+make clean && make
+arm-linux-gnueabihf-gcc -static -o asgn1_user asgn1_user.c   # adjust to your toolchain
+
+# 2. Task 2 – misc counter driver (counter_driver.ko)
+cd ../task2_misc
+make clean && make
+```
+
+#### Step 2: Load `asgn1_driver` and Run the Task 1 Test (inside QEMU vexpress-a9)
+```bash
+insmod asgn1_driver.ko
+mknod /dev/asgn1 c <MAJOR> 0      # <MAJOR> = chosen major in 241-254
+./test_asgn1.sh                   # expected: 17 passed, 0 failed
+```
+
+#### Step 3: Load `counter_driver` and Run the Task 2 Test
+```bash
+sudo insmod counter_driver.ko
+ls -l /dev/counter                # misc device, major 10
+cat /proc/counter_info            # before any access
+sudo ./test.sh                    # read x2, write 100, reset to 0, final stats
+
+# Manual checks
+cat /dev/counter                  # prints the value, then auto-increments
+echo 100 > /dev/counter           # next read returns 100
+echo 0   > /dev/counter           # reset
+echo -5  > /dev/counter           # rejected with -EINVAL
+```
+
+#### Step 4: Verify Diagnostics
+```bash
+dmesg | grep asgn1_driver         # open/release/write and ioctl log lines
+cat /proc/asgn1_info              # Task 1 driver information
+cat /proc/counter_info            # Task 2 statistics
+```
+
+#### Step 5: Unload Drivers & Packaging for LMS Submission
+```bash
+rmmod asgn1_driver                # dmesg prints "unloaded, cleanup done"
+sudo rmmod counter_driver
+
+# Package workspace into the required .tar.gz archive
+tar -czvf SE203740_TranHoKhanhTan_Asgn01.tar.gz assignment01/
+```
+
+---
+
+### 4. Complete Project Deliverables Matrix
+
+#### Repository Structure
+```text
+assignment01/
+├── report/
+│   ├── .gitkeep
+│   └── Assignment_1.pdf
+├── task1_ioctl/
+│   ├── Makefile
+│   ├── asgn1_driver.c
+│   ├── asgn1_ioctl.h
+│   ├── asgn1_user.c
+│   ├── readme.md
+│   └── test_asgn1.sh
+└── task2_misc/
+    ├── .gitkeep
+    ├── Makefile
+    ├── Module.symvers
+    ├── counter_driver.c
+    ├── counter_driver.mod
+    ├── counter_driver.mod.c
+    ├── counter_driver.mod.o
+    ├── counter_driver.o
+    ├── modules.order
+    └── test.sh
+```
+| Module Directory | Key File / Artifact | Description & Deliverable Role |
+| :--- | :--- | :--- |
+| [`task1_ioctl/`](./task1_ioctl/) | [`asgn1_driver.c`](./task1_ioctl/asgn1_driver.c), [`asgn1_ioctl.h`](./task1_ioctl/asgn1_ioctl.h) | Task 1 kernel driver source and the shared ioctl header (magic number, struct, commands) |
+| [`task1_ioctl/`](./task1_ioctl/) | [`asgn1_user.c`](./task1_ioctl/asgn1_user.c), [`test_asgn1.sh`](./task1_ioctl/test_asgn1.sh) | Userspace ioctl test program and the QEMU test script (17 checks) |
+| [`task1_ioctl/`](./task1_ioctl/) | [`Makefile`](./task1_ioctl/Makefile), [`readme.md`](./task1_ioctl/readme.md) | Build rules for the ARMv7 module and Task 1 notes |
+| [`task2_misc/`](./task2_misc/) | [`counter_driver.c`](./task2_misc/counter_driver.c), [`Makefile`](./task2_misc/Makefile) | Task 2 misc device driver source and build rules |
+| [`task2_misc/`](./task2_misc/) | [`test.sh`](./task2_misc/test.sh) | Test script for `/dev/counter` and `/proc/counter_info` |
+| [`task2_misc/`](./task2_misc/) | [`counter_driver.o`](./task2_misc/counter_driver.o), [`counter_driver.mod`](./task2_misc/counter_driver.mod), [`counter_driver.mod.c`](./task2_misc/counter_driver.mod.c), [`counter_driver.mod.o`](./task2_misc/counter_driver.mod.o), [`modules.order`](./task2_misc/modules.order), [`Module.symvers`](./task2_misc/Module.symvers) | Kbuild build artifacts generated by `make` |
+| [`report/`](./report/) | [`Assignment_1.pdf`](./report/Assignment_1.pdf) | Formal technical report (12 pages) with architecture, design analysis, test evidence and theory answers |
+---
 ## 🔬 Assignment 02 – Sensor Monitoring System (SMS)
 
 ### 1. Architectural Overview & State Machine Flow
