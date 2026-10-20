@@ -42,11 +42,10 @@ This repository contains all experimental deliverables, kernel source modificati
   * [`report/`](./lab02_device_driver/report/): Formal technical PDF laboratory report ([`lab 2.pdf`](./lab02_device_driver/report/lab%202.pdf)).
 
 - [`lab03_embedded_linux_rootfs/`](./lab03_embedded_linux_rootfs/): Embedded Linux Root Filesystem, Debugging & Performance Analysis.
-  - [`apps/`](./lab03_embedded_linux_rootfs/apps/): C application source code and compiled binaries (`buggy_app`, `buggy_app.c`, `leaky_app`, `leaky_app.c`, `leaky_app_fixed`, `leaky_app_fixed.c`, `perf_target.c`).
-  - [`output/`](./lab03_embedded_linux_rootfs/output/): Packaged root filesystem image (`initramfs_lab3.cpio.gz`).
-  - [`logs/`](./lab03_embedded_linux_rootfs/logs/): Debugging and profiling evidence (`gdb_session.txt`, `qemu_gdb.log`, `strace_summary.txt`, `valgrind_report.txt`, `perf_stat.txt`, `perf_report.txt`, `hist_standard.txt`, `flamegraph.svg`, `latency_histogram.png`).
+  - [`apps/`](./lab03_embedded_linux_rootfs/apps/): C application source code and compiled binaries (`buggy_app.c`, `leaky_app.c`, `leaky_app_fixed.c`, `perf_target.c`).
+  - [`output/`](./lab03_embedded_linux_rootfs/output/): Packaged Embedded Linux root filesystem image (`initramfs_lab3.cpio.gz`).
+  - [`logs/`](./lab03_embedded_linux_rootfs/logs/): Debugging and performance analysis evidence (`gdb_session.txt`, `qemu_gdb.log`, `strace_summary.txt`, `valgrind_report.txt`, `perf_stat.txt`, `perf_report.txt`, `hist_standard.txt`, `flamegraph.svg`, `latency_histogram.png`).
   - [`report/`](./lab03_embedded_linux_rootfs/report/): Formal technical PDF laboratory report (`SE204290.pdf`).
-  - [`src/`](./lab03_embedded_linux_rootfs/src/): Additional experimental binaries (`buggy_app.previous`, `perf_target_asan`).
 
 - [`assignment01/`](./assignment01/): Advanced Linux Architecture & System Programming (IOCTL & Misc Device).
   * [`task1_ioctl/`](./assignment01/task1_ioctl/): Extended character driver implementing 4 IOCTL commands ([`asgn1_driver.c`](./assignment01/task1_ioctl/asgn1_driver.c), [`asgn1_ioctl.h`](./assignment01/task1_ioctl/asgn1_ioctl.h), [`test_asgn1.sh`](./assignment01/task1_ioctl/test_asgn1.sh)).
@@ -208,22 +207,232 @@ ls -l /mnt/jffs2
 
 ---
 
-## 🔬 Lab 03: Embedded Linux, Root Filesystem & Performance Analysis
+## 🔬 Lab 03: Embedded Linux Root Filesystem, Debugging & Performance Analysis
 
-### 1. Project Overview
+**Embedded Linux Systems (LOS201) · FPT University – Ho Chi Minh City Campus · Lecturer: Phạm Thế Vinh**
 
-This lab contains an Embedded Linux root filesystem image and a collection of C applications used for debugging, memory analysis, and performance investigation.
+> `Rootfs Deployment | GDB Remote Debugging | Valgrind Memory Profiling | perf & FlameGraph | RT Latency Benchmark`
 
-### 2. Implementation Artifacts
+### 1. Architectural Overview & Test Environment Specification
 
-- **Applications ([`apps/`](./lab03_embedded_linux_rootfs/apps/)):** C source files and corresponding application binaries, including `buggy_app`, `leaky_app`, and `leaky_app_fixed`.
-- **Root Filesystem ([`output/`](./lab03_embedded_linux_rootfs/output/)):** Packaged root filesystem image [`initramfs_lab3.cpio.gz`](./lab03_embedded_linux_rootfs/output/initramfs_lab3.cpio.gz).
-- **Debugging and Profiling Evidence ([`logs/`](./lab03_embedded_linux_rootfs/logs/)):** GDB session logs, `strace` summaries, Valgrind reports, `perf` statistics and reports, a latency histogram, and a flame graph.
-- **Technical Report ([`report/`](./lab03_embedded_linux_rootfs/report/)):** [`SE204290.pdf`](./lab03_embedded_linux_rootfs/report/SE204290.pdf).
+Comprehensive embedded Linux debugging and performance analysis framework evaluated on the ARMv7 Cortex-A9 architecture (QEMU `vexpress-a9`) and a high-performance Linux host environment. The laboratory addresses root filesystem assembly, cross-architecture remote GDB debugging, dynamic heap profiling with Valgrind Memcheck, kernel system call tracing via `strace`, micro-architectural CPU performance analysis with `perf`/FlameGraph, and real-time preemption latency characterization with `cyclictest`.
 
-### 3. Validation and Analysis Evidence
+#### Hardware & Software Test Environment Specification
+- **Host System:** Linux 7.0.0-38-generic (Ubuntu, x86_64, SMP PREEMPT_DYNAMIC, gcc 15.2.0).
+- **Target Platform:** ARMv7-A Cortex-A9 emulated via QEMU `vexpress-a9` (512 MB RAM, `ttyAMA0`, Linux 5.15 LTS, sysroot: `/usr/arm-linux-gnueabihf`).
+- **Debugging & Profiling Suite:** GNU gdb 17.1 (`gdb-multiarch`), Valgrind 3.26.0 (LibVEX engine), Linux `perf` 7.0.14, and `cyclictest` (rt-tests suite).
 
-The repository includes artifacts for examining application behavior and memory usage, reviewing debugger sessions, and analyzing performance measurements. Refer to the saved logs and report for the actual test procedures and recorded results.
+![Lab 03 Real-Time Latency Histogram](./lab03_embedded_linux_rootfs/logs/latency_histogram.png)
+
+---
+
+### 2. Implementation Tasks & Technical Evaluation
+
+#### 📌 Task 1: Cross-Architecture Remote GDB Debugging & Vulnerability Analysis
+- **Rootfs Construction & Deployment ([`initramfs_lab3.cpio.gz`](./lab03_embedded_linux_rootfs/output/initramfs_lab3.cpio.gz)):** Assembled and compressed a minimal BusyBox-based root filesystem image tailored for the ARMv7 guest system on QEMU, packaging userspace debugging binaries and utilities.
+- **Cross-Architecture Remote Debugging Setup ([`qemu_gdb.log`](./lab03_embedded_linux_rootfs/logs/qemu_gdb.log), [`gdb_session.txt`](./lab03_embedded_linux_rootfs/logs/gdb_session.txt)):**
+  * Launched QEMU with `-s -S` parameters, opening a remote GDB server stub bound to TCP port `1234`.
+  * Connected from host via `gdb-multiarch apps/buggy_app` using `target remote localhost:1234`.
+  * Configured remote environment (`set architecture arm`, `set sysroot /usr/arm-linux-gnueabihf`), successfully inspecting breakpoints, ARM core registers (`r0`-`r12`, `sp`, `lr`, `pc`, `cpsr`), and call backtraces.
+- **Deep-Dive Vulnerability Diagnosis & Remediation ([`buggy_app.c`](./lab03_embedded_linux_rootfs/apps/buggy_app.c)):**
+  1. **Bug 1: Out-of-bounds Read (Off-by-one) in `process_data()` (lines 9–10):**
+     - *Root Cause:* The loop condition `i <= len` evaluates index `i = 5` for an array defined with 5 elements (`arr[5]`). The CPU reads past array boundary on stack, retrieving uninitialized garbage memory (`arr[5] = 812441344` or `-495043840`), corrupting calculations and yielding undefined behavior.
+     - *Patch:* Corrected loop termination boundary to `i < len`.
+  2. **Bug 2: Use-After-Free in `create_message()` (lines 20–21):**
+     - *Root Cause:* The helper allocates `buf = malloc(32)`, copies text, executes `free(buf)`, and then returns the dangling pointer `return buf;`. The deallocated chunk reverts to the heap allocator and has its internal metadata overwritten (GDB reveals payload damaged to `!\004`). In `main()`, printing `msg` dereferences invalidated memory (*Dangling Pointer* hazard).
+     - *Patch:* Removed premature `free()` from `create_message()`. Transferred heap ownership to caller (`main()`), which performs `free(msg)` after use and resets `msg = NULL`.
+  3. **Bug 3: Integer Overflow in `calculate()` (line `int result = a * b`):**
+     - *Root Cause:* For inputs `calculate(100000, 100000)`, the exact product is $10^{10}$, exceeding `INT_MAX` ($2,147,483,647$) for 32-bit signed integers. Arithmetic overflow wraps around into a truncated positive or negative value ($1,410,065,408$ or $-2,147,483,648$), leading to silent logic failure.
+     - *Patch:* Promoted variables to 64-bit integers (`int64_t`), explicitly casting operands before multiplication `(int64_t)a * b` and formatting with `%lld`.
+
+| Debug / Test Scenario | Defect Classification & Target Logic | Observed Runtime State & Register Context | Evaluation Verdict |
+| :--- | :--- | :--- | :---: |
+| **Array Boundary Audit** | Off-by-one read (`arr[5]`) | Stack out-of-bounds garbage read (`812441344`) | ✅ PASS |
+| **Dangling Pointer Access** | Use-after-free (`free(buf)` then return) | Corrupted heap header read (`!\004` / dangling deref) | ✅ PASS |
+| **Arithmetic Integrity** | 32-bit signed int overflow (`INT_MAX + 1`) | Binary wrap-around without warning (`-2147483648`) | ✅ PASS |
+| **Remote GDB Session** | Socket attach `:1234` on QEMU ARM | Hardware breakpoints hit, assembly stepping, registers examined | ✅ PASS |
+
+---
+
+#### 📌 Task 2: Memory Leak Detection & Dynamic Heap Sanitization (Valgrind Memcheck)
+- **Heap Defect Profiling ([`leaky_app.c`](./lab03_embedded_linux_rootfs/apps/leaky_app.c), [`valgrind_leaky.log`](./lab03_embedded_linux_rootfs/logs/valgrind_leaky.log), [`valgrind_report.txt`](./lab03_embedded_linux_rootfs/logs/valgrind_report.txt)):**
+  Profiled unpatched application using `valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all --track-origins=yes`. Identified **16,900 bytes definitely lost across 250 blocks** from 3 distinct loss records:
+  * **Loss Record 1 (2,000 bytes in 100 blocks):** Dynamic allocation `r->scores = malloc(sizeof(int) * num_scores)` in `create_record()` (`leaky_app.c:23`). Incomplete cleanup in `delete_record()` where `free(r->scores)` was commented out.
+  * **Loss Record 2 (2,100 bytes in 100 blocks):** String allocation `r->name = malloc(strlen(name) + 1)` in `create_record()` (`leaky_app.c:21`). Calling only `free(r)` freed the outer struct while leaving member pointers orphaned.
+  * **Loss Record 3 (12,800 bytes in 50 blocks):** Buffer allocation `buf = malloc(MSG_SIZE)` in `process_messages()` (`leaky_app.c:41`). The local pointer was overwritten in each loop cycle without calling `free(buf)`, leaking 50 buffers of 256 bytes each.
+  * **Summary Imbalance:** 352 total heap allocations with only 102 deallocations (250 blocks abandoned).
+- **Remediation & Zero-Leak Verification ([`leaky_app_fixed.c`](./lab03_embedded_linux_rootfs/apps/leaky_app_fixed.c), [`valgrind_fixed.log`](./lab03_embedded_linux_rootfs/logs/valgrind_fixed.log)):**
+  * Refactored `delete_record()` to enforce hierarchical bottom-up deallocation: `free(r->name)` -> `free(r->scores)` -> `free(r)`.
+  * Added `free(buf)` immediately following message processing inside the loop.
+- **Validation Verdict:** Attained complete memory reclamation: **352 allocs, 352 frees, 21,124 bytes allocated**, `0 bytes in use at exit`, and **0 errors from 0 contexts**.
+
+| Valgrind Metric | `leaky_app` (Unpatched) | `leaky_app_fixed` (Patched) | Technical Impact & Verdict |
+| :--- | :---: | :---: | :--- |
+| **Total Allocations / Frees** | 352 allocs / 102 frees | 352 allocs / 352 frees | Exact 1:1 allocation-to-deallocation balance |
+| **Definitely Lost Memory** | `16,900 bytes` (250 blocks) | `0 bytes` (0 blocks) | Completely eliminated accumulated heap leaks |
+| **Nested Structure Leaks** | 4,100 bytes (`name` & `scores`) | 0 bytes | Guaranteed complete lifecycle release for child pointers |
+| **Transient Buffer Leaks** | 12,800 bytes (`buf`) | 0 bytes | Instantaneous deallocation post-message dispatch |
+| **Valgrind Error Summary** | 3 errors from 3 contexts | **0 errors from 0 contexts** | ✅ PASS (Production Ready) |
+
+---
+
+#### 📌 Task 3: System Call Tracing & CPU Hardware Profiling (`strace` & `perf`)
+- **System Call Profiling ([`strace_summary.txt`](./lab03_embedded_linux_rootfs/logs/strace_summary.txt)):**
+  * Evaluated kernel space overhead using `strace -c ./perf_target`:
+    - **124 total system calls** consuming a modest `0.002785 seconds` (~2.8 ms) of total kernel runtime.
+    - `execve`: Consumed **49.30%** of syscall duration (`1,373 µs`, 1 invocation) as one-time process initialization.
+    - `mmap`: Accounted for **25.13%** (`700 µs`, 14 invocations) for dynamic library mapping (`libc.so`, `libm.so`).
+    - `write`: Generated **75 calls** taking only 3.45% of time (`96 µs`), averaging ~1 µs per invocation without I/O blocking.
+  * *Conclusion:* Kernel space execution is minimal (~2.8 ms), confirming zero abnormal I/O delays.
+- **Hardware Performance Counters ([`perf_stat.txt`](./lab03_embedded_linux_rootfs/logs/perf_stat.txt)):**
+  * `task-clock`: 36.08 msec across ~0.3 CPU utilization.
+  * `cpu-cycles`: 78,657,430 cycles @ 2.2 GHz clock frequency.
+  * `instructions`: 368,615,820 executed instructions, yielding an outstanding **IPC = 4.69** (instructions per cycle).
+  * `branches`: 50,604,407 branches with exceptionally low branch miss rate (10,256 misses, ~0.02%).
+  * **Topdown L1 Architecture Analysis:** **81.6% Retiring** (optimal pipeline utilization), 11.7% Backend Bound, 6.2% Frontend Bound, and 0.4% Bad Speculation.
+- **CPU Bottleneck & Call Stack Hotspot ([`perf_report.txt`](./lab03_embedded_linux_rootfs/logs/perf_report.txt), [`flamegraph.svg`](./lab03_embedded_linux_rootfs/logs/flamegraph.svg)):**
+  * **Bottleneck Determination:** The target is strictly **CPU-bound**, not I/O-bound.
+  * **Hotspot Decomposition:** Over **80% of total CPU cycles** are concentrated in the mathematical compute loop:
+    - `heavy_compute()`: **33.92%** overhead.
+    - PLT trampoline `log@plt`: **4.91%** overhead.
+    - Symbol `__ieee754_log_fma` in `libm.so.6`: **43.07%** overhead (primary hotspot).
+  * *Note:* Incidental symbols like `drm_send_event_helper`, `ktime_get`, and `i915` correspond to host OS background graphics interrupts during sampling.
+- **Engineering Optimization Recommendations:**
+  1. *Reduce `log()` Invocations:* Extract invariant logarithmic terms outside loops; employ memoization or precomputed caches.
+  2. *Alternative Math Implementations:* Use `logf()` for 32-bit float accuracy, lookup tables (LUT), or polynomial Chebyshev approximations.
+  3. *Compiler Vectorization:* Compile with `-O3`, `-march=native` to enable SIMD (NEON/AVX2), and `-ffast-math` when small floating-point error tolerances are acceptable.
+  4. *Multi-Thread Parallelization:* Partition `darr` array processing across multiple threads (e.g. OpenMP or `pthread`), exploiting data independence.
+  5. *I/O Stream Consolidation:* Apply larger user buffers (`setvbuf`/`fwrite`) to condense 75 `write` syscalls into a single chunk.
+
+| Performance Metric / Hotspot Symbol | Observed Measurement / Count | Architectural Significance |
+| :--- | :---: | :--- |
+| **Top Syscall by Overhead** | `execve` (49.30% / 1,373 µs) | Initial process binary loading and memory mapping |
+| **Top Syscall by Frequency** | `write` (75 invocations / 3.45%) | Console output logging (~1 µs per call) |
+| **Instruction Throughput (IPC)** | **4.69 insn/cycle** (368.6M insns) | Saturated superscalar pipeline retirement |
+| **Pipeline Retiring Ratio** | **81.6% Retiring** | Minimal pipeline stall or branch misprediction waste |
+| **Primary CPU Hotspot** | `__ieee754_log_fma` (43.07%) | Heavy logarithmic math in `heavy_compute()` |
+| **Secondary Function Hotspot** | `heavy_compute()` (33.92%) | Loop index manipulation and floating-point additions |
+
+---
+
+#### 📌 Task 4: Real-Time Latency & Jitter Characterization (`cyclictest`)
+- **Multithreaded Real-Time Latency Benchmark ([`hist_standard.txt`](./lab03_embedded_linux_rootfs/logs/hist_standard.txt)):**
+  Evaluated scheduling determinism on Standard Kernel using `cyclictest` (`-t4 -p80 -n -i1000 -l10000 -h100 -q --mlockall`):
+  * **Test Parameters:** 4 real-time worker threads, `SCHED_FIFO` priority 80, 1000 µs interval, 10,000 iterations per thread, locked physical RAM (`--mlockall`).
+- **Benchmark Comparative Data: No Load vs. Under Load:**
+
+| Benchmark Condition | Metric | Thread 0 (Core 0) | Thread 1 (Core 1) | Thread 2 (Core 2) | Thread 3 (Core 3) | Overall System |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Condition: No Load** | **Min Latency** | 2 µs | 2 µs | 2 µs | 2 µs | **2 µs** |
+| | **Avg Latency** | 3 µs | 3 µs | 3 µs | 3 µs | **3 µs** |
+| | **Max Latency (Jitter)** | 122 µs | 101 µs | 122 µs | 104 µs | **122 µs** |
+| | **Overflow Count** | 0 | 0 | 0 | 0 | **0 (Pass)** |
+| **Condition: Under Load** | **Min Latency** | 2 µs | 2 µs | 2 µs | 2 µs | **2 µs** |
+| | **Avg Latency** | 3 µs | 3 µs | 3 µs | 3 µs | **3 µs** |
+| | **Max Latency (Jitter)** | 134 µs | **1,322 µs** | **1,179 µs** | 140 µs | **1,322 µs** |
+| | **Overflow Count** | 0 | 0 | 0 | 0 | **0 (Pass)** |
+
+- **Critical Real-Time Engineering Insights:**
+  * **Why Max Latency Outweighs Average Latency in RT Systems:**
+    - Real-time systems are evaluated on strict deadline compliance, not throughput or mean speed.
+    - Average latency is easily diluted by tens of thousands of fast samples, concealing catastrophic tail latency.
+    - As proven by the experimental data: while Average Latency remained unchanged at **3 µs**, Maximum Latency surged from **122 µs to 1,322 µs** under load (over 400x the average). For a robotic feedback control loop requiring $< 500\ \mu\text{s}$, a single $1,322\ \mu\text{s}$ spike causes lost control cycles, actuator jitter, or mechanical failure.
+  * **How PREEMPT_RT Mitigates Maximum Latency:**
+    - *Fully Preemptible Critical Sections:* Allows higher-priority real-time tasks to preempt kernel code almost anywhere.
+    - *Spinlock Conversion to `rt_mutex`:* Waiting tasks sleep instead of spinning and monopolizing CPU cores.
+    - *Priority Inheritance Protocol:* Dynamically elevates lock-holder priorities, eliminating unbounded priority inversion.
+    - *Threaded Hard IRQs:* Interrupt service routines execute as scheduled threads, preventing high-priority RT task starvation.
+    - *High-Resolution Timers (hrtimer):* Provides sub-microsecond timer expiration precision, minimizing jitter.
+  * **Robotic Control Architecture Recommendation ($< 500\ \mu\text{s}$ Target):**
+    - Deploy **Linux with PREEMPT_RT patch**. The Standard Kernel cannot guarantee worst-case latency bounds ($1,322\ \mu\text{s} > 500\ \mu\text{s}$).
+    - Implementation guidelines: Execute control loops with `SCHED_FIFO`, lock memory via `mlockall()` to eliminate page faults, and isolate dedicated RT cores using `isolcpus`. Determinism takes absolute priority over raw throughput.
+
+---
+
+### 3. Step-by-Step Reproduction Guide (How to Run)
+
+#### Step 1: Build Applications & Package Custom Initramfs
+```bash
+# 1. Cross-compile C test applications for ARM target architecture
+cd lab03_embedded_linux_rootfs/apps
+arm-linux-gnueabihf-gcc -g -O0 -o buggy_app buggy_app.c
+arm-linux-gnueabihf-gcc -g -O0 -o leaky_app leaky_app.c
+arm-linux-gnueabihf-gcc -g -O0 -o leaky_app_fixed leaky_app_fixed.c
+arm-linux-gnueabihf-gcc -O2 -o perf_target perf_target.c -lm
+
+# 2. Package applications into rootfs archive
+cd ../rootfs
+find . | cpio -o -H newc | gzip -9 > ../output/initramfs_lab3.cpio.gz
+```
+
+#### Step 2: Launch QEMU with GDB Server & Remote Debug
+```bash
+# 1. Run QEMU guest with gdb remote listening (-s -S)
+qemu-system-arm -M vexpress-a9 -m 512M -kernel zImage -dtb vexpress-v2p-ca9.dtb \
+    -initrd output/initramfs_lab3.cpio.gz -append "console=ttyAMA0" -nographic -s -S
+
+# 2. In host terminal, attach gdb-multiarch
+gdb-multiarch apps/buggy_app
+(gdb) target remote localhost:1234
+(gdb) set architecture arm
+(gdb) set sysroot /usr/arm-linux-gnueabihf
+(gdb) break main
+(gdb) continue
+(gdb) next
+```
+
+#### Step 3: Run Valgrind Heap Profiling & Leak Verification
+```bash
+# 1. Profile unpatched application for memory leaks
+valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all \
+    --track-origins=yes ./apps/leaky_app 2>&1 | tee logs/valgrind_leaky.log
+
+# 2. Validate zero memory leak on patched binary
+valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all \
+    ./apps/leaky_app_fixed 2>&1 | tee logs/valgrind_fixed.log
+```
+
+#### Step 4: Profile System Calls & CPU Performance
+```bash
+# 1. Trace system calls with execution summary
+strace -c ./apps/perf_target 2>&1 | tee logs/strace_summary.txt
+
+# 2. Record CPU hardware performance counters
+perf stat -d ./apps/perf_target 2>&1 | tee logs/perf_stat.txt
+
+# 3. Sample call stack and generate Flame Graph
+perf record -g -F 99 ./apps/perf_target
+perf script | ./stackcollapse-perf.pl | ./flamegraph.pl > logs/flamegraph.svg
+```
+
+#### Step 5: Benchmark Real-Time Preemption Latency
+```bash
+# 1. Run cyclictest across all 4 cores with histogram logging (No Load & Load)
+cyclictest -t4 -p80 -n -i1000 -l10000 -h100 -q --mlockall > logs/hist_standard.txt
+
+# 2. Plot latency distribution histogram
+python3 -c "
+import matplotlib.pyplot as plt
+# Plotting cyclictest histogram data
+"
+```
+
+---
+
+### 4. Complete Project Deliverables Matrix
+
+| Module Directory | Key File / Artifact | Description & Deliverable Role |
+| :--- | :--- | :--- |
+| [`apps/`](./lab03_embedded_linux_rootfs/apps/) | [`buggy_app.c`](./lab03_embedded_linux_rootfs/apps/buggy_app.c), [`buggy_app`](./lab03_embedded_linux_rootfs/apps/buggy_app) | Source code and binary for ARM remote GDB debugging (out-of-bounds, use-after-free, overflow) |
+| [`apps/`](./lab03_embedded_linux_rootfs/apps/) | [`leaky_app.c`](./lab03_embedded_linux_rootfs/apps/leaky_app.c), [`leaky_app`](./lab03_embedded_linux_rootfs/apps/leaky_app) | Vulnerable C application demonstrating nested struct and buffer memory leaks |
+| [`apps/`](./lab03_embedded_linux_rootfs/apps/) | [`leaky_app_fixed.c`](./lab03_embedded_linux_rootfs/apps/leaky_app_fixed.c), [`leaky_app_fixed`](./lab03_embedded_linux_rootfs/apps/leaky_app_fixed) | Patched application achieving 100% clean heap disposal (0 errors, 0 lost bytes) |
+| [`apps/`](./lab03_embedded_linux_rootfs/apps/) | [`perf_target.c`](./lab03_embedded_linux_rootfs/apps/perf_target.c) | Computation and I/O intensive benchmark application for profiling |
+| [`output/`](./lab03_embedded_linux_rootfs/output/) | [`initramfs_lab3.cpio.gz`](./lab03_embedded_linux_rootfs/output/initramfs_lab3.cpio.gz) | Compressed CPIO root filesystem image deployed on ARM QEMU target |
+| [`logs/`](./lab03_embedded_linux_rootfs/logs/) | [`gdb_session.txt`](./lab03_embedded_linux_rootfs/logs/gdb_session.txt), [`qemu_gdb.log`](./lab03_embedded_linux_rootfs/logs/qemu_gdb.log) | Verifiable GDB execution outputs capturing runtime fault behaviors |
+| [`logs/`](./lab03_embedded_linux_rootfs/logs/) | [`valgrind_leaky.log`](./lab03_embedded_linux_rootfs/logs/valgrind_leaky.log), [`valgrind_fixed.log`](./lab03_embedded_linux_rootfs/logs/valgrind_fixed.log), [`valgrind_report.txt`](./lab03_embedded_linux_rootfs/logs/valgrind_report.txt) | Comparative Memcheck logs confirming elimination of 16.9 KB memory leak |
+| [`logs/`](./lab03_embedded_linux_rootfs/logs/) | [`strace_summary.txt`](./lab03_embedded_linux_rootfs/logs/strace_summary.txt), [`perf_stat.txt`](./lab03_embedded_linux_rootfs/logs/perf_stat.txt), [`perf_report.txt`](./lab03_embedded_linux_rootfs/logs/perf_report.txt) | Detailed syscall duration statistics, hardware PMC counters, and CPU hotspot reports |
+| [`logs/`](./lab03_embedded_linux_rootfs/logs/) | [`flamegraph.svg`](./lab03_embedded_linux_rootfs/logs/flamegraph.svg), [`latency_histogram.png`](./lab03_embedded_linux_rootfs/logs/latency_histogram.png) | High-resolution visual artifacts for call stack profiling and RT latency distribution |
+| [`report/`](./lab03_embedded_linux_rootfs/report/) | [`SE204290.pdf`](./lab03_embedded_linux_rootfs/report/SE204290.pdf) | Formal academic engineering PDF report for Laboratory 03 |
 
 ---
 
