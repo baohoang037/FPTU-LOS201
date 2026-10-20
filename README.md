@@ -116,6 +116,39 @@ lab01_kernel_boot/
         │   ├── bin/
         │   └── sbin/
         └── init
+```
+
+### 4. Execution Steps & Commands
+
+**Step 1: Configure & Compile Linux Kernel**
+```bash
+# Load default hardware configuration for vexpress-a9
+make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- vexpress_defconfig
+
+# Compile the kernel (zImage) and Device Tree Blobs (.dtb) with multi-core parallel processing
+make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- all -j$(nproc)
+```
+
+**Step 2: Package Initramfs (BusyBox rootfs)**
+```bash
+cd rootfs/initramfs
+find . | cpio -H newc -ov --owner root:root > ../../output/initramfs.cpio
+cd ../../output
+gzip initramfs.cpio
+```
+
+**Step 3: System Boot Execution on QEMU**
+```bash
+# Boot the compressed kernel image with the generated Device Tree and initramfs
+qemu-system-arm -M vexpress-a9 -m 512M \
+  -kernel output/zImage \
+  -dtb output/vexpress-v2p-ca9.dtb \
+  -initrd output/initramfs.cpio.gz \
+  -append "console=ttyAMA0 root=/dev/ram0" \
+  -nographic
+```
+
+---
 ## 🔬 Lab 02: Writing Device Drivers & File System Management
 
 **Embedded Linux Systems (LOS201) · FPT University – Ho Chi Minh City Campus · Lecturer: Phạm Thế Vinh**
