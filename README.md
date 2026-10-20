@@ -38,8 +38,8 @@ This repository contains all experimental deliverables, kernel source modificati
   * [`driver/`](./lab02_device_driver/driver/): Kernel module source and compiled binary ([`lab2_driver.c`](./lab02_device_driver/driver/lab2_driver.c), [`lab2_driver.ko`](./lab02_device_driver/driver/lab2_driver.ko), [`Makefile`](./lab02_device_driver/driver/Makefile)).
   * [`rootfs/`](./lab02_device_driver/rootfs/): Validation shell scripts ([`test_driver.sh`](./lab02_device_driver/rootfs/test_driver.sh), [`test_procfs.sh`](./lab02_device_driver/rootfs/test_procfs.sh)).
   * [`logs/`](./lab02_device_driver/logs/): Execution terminal outputs ([`boot_log.txt`](./lab02_device_driver/logs/boot_log.txt), [`driver_test.txt`](./lab02_device_driver/logs/driver_test.txt), [`mtd_jffs2.txt`](./lab02_device_driver/logs/mtd_jffs2.txt)).
-  * [`docs/`](./lab02_device_driver/docs/): Architectural diagrams ([`architecture_diagram.png?v=2`](./lab02_device_driver/docs/architecture_diagram.png?v=2)).
-  * [`report/`](./lab02_device_driver/report/): Formal technical PDF laboratory report ([`SE203238_Lab02_BaoCao.pdf`](./lab02_device_driver/report/SE203238_Lab02_BaoCao.pdf)).
+  * [`docs/`](./lab02_device_driver/docs/): Architectural diagrams ([`architecture_diagram.png`](./lab02_device_driver/docs/architecture_diagram.png)).
+  * [`report/`](./lab02_device_driver/report/): Formal technical PDF laboratory report ([`lab 2.pdf`](./lab02_device_driver/report/lab%202.pdf)).
 
 - [`lab03_open_source/`](./lab03_open_source/): Open Source Development Workflow & Community Contribution.
 
@@ -75,15 +75,131 @@ LAB 01 focuses on configuring, building, and booting an Embedded Linux system fo
 
 ## 🔬 Lab 02: Writing Device Drivers & File System Management
 
-### 1. Architectural Overview & System Flow
-Bridges userspace system call requests with simulated hardware resources while maintaining strict kernel-space memory isolation and data integrity.
+**Embedded Linux Systems (LOS201) · FPT University – Ho Chi Minh City Campus · Lecturer: Phạm Thế Vinh**
 
-![Architecture Diagram](./lab02_device_driver/docs/architecture_diagram.png?v=2)
+> `Character Device Driver | Mutex Concurrency | ProcFS & Sysfs Telemetry | MTD Flash & JFFS2`
 
-### 2. Comprehensive Technical Highlights
-- **Character Device Driver:** Registered at Major `240`, Minor `0` mapped to [`/dev/lab2`](./lab02_device_driver/driver/lab2_driver.c). Implemented zero-panic memory copying via `copy_to_user()` / `copy_from_user()`.
-- **Synchronization & Telemetry:** Serialized access using `DEFINE_MUTEX(lab2_mutex)`. Exported runtime metrics via `/proc/lab2_info` and sysfs attributes.
-- **MTD & JFFS2 Subsystem:** Emulated 32MB physical NAND flash with `nandsim`, validated persistence and bitmask headers (`0x85 0x19`) on `/dev/mtdblock1`.
+### 1. Architectural Overview & Data Flow
+Bridges userspace system call requests (`open`, `read`, `write`, `close`) with simulated hardware resources while maintaining strict kernel-space memory isolation and data integrity.
+
+![Lab 02 Architecture Diagram](./lab02_device_driver/docs/architecture_diagram.png)
+
+---
+
+### 2. Implementation Tasks & Technical Evaluation
+
+#### 📌 Task 1: Character Driver Core & Synchronization (Major 240, Minor 0)
+- **Device Registration ([`lab2_driver.c`](./lab02_device_driver/driver/lab2_driver.c)):** Registered character device node at Major number `240`, Minor `0` via `register_chrdev()`. Automated dynamic device node creation at [`/dev/lab2`](./lab02_device_driver/driver/lab2_driver.c) using `class_create()` (`lab2_class`) and `device_create()`.
+- **Memory Safety & Isolation:** Zero-panic memory transfers between user and kernel spaces using `copy_to_user()` and `copy_from_user()`. Converted user pointers safely while rejecting unmapped regions with `-EFAULT`.
+- **Concurrency & Race Condition Prevention:** Serialized read and write critical sections on `device_buffer` using `DEFINE_MUTEX(lab2_mutex)`, completely eliminating multi-process race conditions.
+- **Command Dispatch & Buffer Boundary Protection:**
+  * **Command `clear`:** Sending `echo "clear" > /dev/lab2` resets buffer length (`buffer_len = 0`) and flushes storage, leaving `cat /dev/lab2` cleanly empty.
+  * **128-Byte Write Truncation:** Inputs exceeding 128 bytes are truncated to 128 bytes while consuming full stream tokens (`return orig_len`), preventing re-entrancy write loops in user space.
+
+| Test Operation | Execution Command | Observed System State | Evaluation Verdict |
+| :--- | :--- | :--- | :---: |
+| **Driver Module Insertion** | `insmod /lab2_driver.ko` | Node `/dev/lab2` created (crw-------, major 240) | ✅ PASS |
+| **Standard Write & Read** | `echo "FPTU IC Design" > /dev/lab2` | `cat /dev/lab2` returns "FPTU IC Design" | ✅ PASS |
+| **Command `clear` Reset** | `echo "clear" > /dev/lab2` | Buffer flushed (`buffer_len = 0`), read returns empty | ✅ PASS |
+| **Truncate to 128 Bytes** | `echo "<160 bytes>" > /dev/lab2` | `Data length: 128 bytes`, warning in `dmesg` | ✅ PASS |
+| **Module Clean Unload** | `rmmod lab2_driver` | Resources unregistered, nodes cleaned from `/dev` | ✅ PASS |
+
+---
+
+#### 📌 Task 2: Kernel Telemetry & Diagnostics (ProcFS & Sysfs)
+- **ProcFS Diagnostics ([`/proc/lab2_info`](./lab02_device_driver/rootfs/test_procfs.sh)):** Integrated `seq_file` interface to report dynamic statistics including Driver Name, Major Number, Allocated Buffer Size, Active Data Length, `Open count`, and cumulative `Write count`.
+- **Granular Sysfs Attributes ([`/sys/class/lab2_class/lab2/`](./lab02_device_driver/driver/lab2_driver.c)):**
+  * `read_count`: Total successful invocations of the `read()` syscall.
+  * `buffer_size`: Static allocated buffer capacity (`1024 bytes`).
+  * `buffer_len`: Real-time length of stored payload.
+  * `status`: Dynamically outputs `EMPTY` (when `buffer_len == 0`) or `DATA` (when `buffer_len > 0`).
+  * `total_bytes_read` & `total_bytes_written`: High-precision cumulative byte counters incremented strictly upon successful payload transactions.
+
+| Sysfs / Procfs Node | Access Mode | Sample Value / Format | Technical Purpose |
+| :--- | :---: | :---: | :--- |
+| `/proc/lab2_info` | Read-Only | Text Key-Value Block | Comprehensive status snapshot via `seq_file` API |
+| `/sys/.../status` | Read-Only | `EMPTY` / `DATA` | Binary state evaluation based on `buffer_len` |
+| `/sys/.../buffer_size` | Read-Only | `1024` | Static allocated capacity of `device_buffer` |
+| `/sys/.../buffer_len` | Read-Only | `0` to `128` | Exact active payload byte length |
+| `/sys/.../read_count` | Read-Only | Unsigned integer | Frequency of `read()` system calls |
+| `/sys/.../total_bytes_read` | Read-Only | Unsigned long | Cumulative count of bytes streamed to userspace |
+| `/sys/.../total_bytes_written` | Read-Only | Unsigned long | Cumulative count of bytes written from userspace |
+
+---
+
+#### 📌 Task 3: Flash Storage & JFFS2 Filesystem Subsystem
+- **NAND Flash Emulation:** Emulated physical NAND flash memory device (32MB) with `nandsim` (`first_id_byte=0x20`, `second_id_byte=0x76`).
+- **JFFS2 Verification ([`mtd_jffs2.txt`](./lab02_device_driver/logs/mtd_jffs2.txt)):** Formatted and mounted partition to `/mnt/jffs2`. Verified flash persistence across system reboots and validated magic bitmask headers (`0x85 0x19`) on `/dev/mtdblock1`.
+
+---
+
+### 3. Step-by-Step Reproduction Guide (How to Run)
+
+#### Step 1: Cross-Compile Driver & Package RootFS
+```bash
+# 1. Compile kernel module for ARM target architecture
+cd lab02_device_driver/driver
+make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf-
+
+# 2. Package module into initramfs and rebuild bootable cpio archive
+~/embedded_lab2/build_and_pack.sh
+```
+
+#### Step 2: Boot QEMU & Load Driver
+```bash
+# 1. Launch QEMU ARM virtual platform
+./run_qemu.sh
+
+# 2. Inside QEMU guest (/ #), insert driver module
+insmod /lab2_driver.ko
+
+# 3. Verify device nodes and procfs registration
+ls -l /dev/lab2
+cat /proc/lab2_info
+```
+
+#### Step 3: Run Validation & Diagnostic Test Suite
+```bash
+# 1. Verify read/write transactions and Sysfs attributes
+echo "FPTU IC Design" > /dev/lab2
+cat /dev/lab2
+cat /sys/class/lab2_class/lab2/status
+cat /sys/class/lab2_class/lab2/buffer_size
+
+# 2. Test buffer reset command
+echo "clear" > /dev/lab2
+cat /sys/class/lab2_class/lab2/status    # Outputs: EMPTY
+
+# 3. Execute automated test validation scripts
+sh /test_driver.sh
+sh /test_procfs.sh
+```
+
+#### Step 4: Verify NAND Flash (MTD) & Mount JFFS2
+```bash
+# 1. Load NAND simulator module
+modprobe nandsim first_id_byte=0x20 second_id_byte=0x76
+
+# 2. Mount JFFS2 partition to filesystem
+mount -t jffs2 /dev/mtdblock1 /mnt/jffs2
+
+# 3. Test persistence across reboot
+touch /mnt/jffs2/test_persist.txt
+ls -l /mnt/jffs2
+```
+
+---
+
+### 4. Complete Project Deliverables Matrix
+
+| Module Directory | Key File / Artifact | Description & Deliverable Role |
+| :--- | :--- | :--- |
+| [`driver/`](./lab02_device_driver/driver/) | [`lab2_driver.c`](./lab02_device_driver/driver/lab2_driver.c), [`lab2_driver.ko`](./lab02_device_driver/driver/lab2_driver.ko) | Kernel character driver source code and compiled ARM module |
+| [`driver/`](./lab02_device_driver/driver/) | [`Makefile`](./lab02_device_driver/driver/Makefile) | Out-of-tree Linux kernel module compilation configuration |
+| [`rootfs/`](./lab02_device_driver/rootfs/) | [`test_driver.sh`](./lab02_device_driver/rootfs/test_driver.sh), [`test_procfs.sh`](./lab02_device_driver/rootfs/test_procfs.sh) | Automated verification shell scripts for device I/O and telemetry |
+| [`logs/`](./lab02_device_driver/logs/) | [`boot_log.txt`](./lab02_device_driver/logs/boot_log.txt), [`driver_test.txt`](./lab02_device_driver/logs/driver_test.txt), [`mtd_jffs2.txt`](./lab02_device_driver/logs/mtd_jffs2.txt) | Verified execution logs covering boot sequence, character I/O, and NAND flash |
+| [`docs/`](./lab02_device_driver/docs/) | [`architecture_diagram.png`](./lab02_device_driver/docs/architecture_diagram.png) | System architecture diagram detailing user-kernel space data path |
+| [`report/`](./lab02_device_driver/report/) | [`lab 2.pdf`](./lab02_device_driver/report/lab%202.pdf) | Formal technical engineering PDF report for Laboratory 02 |
 
 ---
 
@@ -190,7 +306,7 @@ Any command outside these four returns `-ENOTTY`.
 # 1. Task 1 – ioctl driver (asgn1_driver.ko) and userspace test program
 cd task1_ioctl
 make clean && make
-arm-linux-gnueabihf-gcc -static -o asgn1_user asgn1_user.c   # adjust to your toolchain
+arm-linux-gnueabihf-gcc -static -o asgn1_user asgn1_user.c
 
 # 2. Task 2 – misc counter driver (counter_driver.ko)
 cd ../task2_misc
@@ -200,34 +316,34 @@ make clean && make
 #### Step 2: Load `asgn1_driver` and Run the Task 1 Test (inside QEMU vexpress-a9)
 ```bash
 insmod asgn1_driver.ko
-mknod /dev/asgn1 c <MAJOR> 0      # <MAJOR> = chosen major in 241-254
-./test_asgn1.sh                   # expected: 17 passed, 0 failed
+mknod /dev/asgn1 c <MAJOR> 0
+./test_asgn1.sh
 ```
 
 #### Step 3: Load `counter_driver` and Run the Task 2 Test
 ```bash
 sudo insmod counter_driver.ko
-ls -l /dev/counter                # misc device, major 10
-cat /proc/counter_info            # before any access
-sudo ./test.sh                    # read x2, write 100, reset to 0, final stats
+ls -l /dev/counter
+cat /proc/counter_info
+sudo ./test.sh
 
 # Manual checks
-cat /dev/counter                  # prints the value, then auto-increments
-echo 100 > /dev/counter           # next read returns 100
-echo 0   > /dev/counter           # reset
-echo -5  > /dev/counter           # rejected with -EINVAL
+cat /dev/counter
+echo 100 > /dev/counter
+echo 0   > /dev/counter
+echo -5  > /dev/counter
 ```
 
 #### Step 4: Verify Diagnostics
 ```bash
-dmesg | grep asgn1_driver         # open/release/write and ioctl log lines
-cat /proc/asgn1_info              # Task 1 driver information
-cat /proc/counter_info            # Task 2 statistics
+dmesg | grep asgn1_driver
+cat /proc/asgn1_info
+cat /proc/counter_info
 ```
 
 #### Step 5: Unload Drivers & Packaging for LMS Submission
 ```bash
-rmmod asgn1_driver                # dmesg prints "unloaded, cleanup done"
+rmmod asgn1_driver
 sudo rmmod counter_driver
 
 # Package workspace into the required .tar.gz archive
@@ -272,7 +388,9 @@ assignment01/
 | [`task2_misc/`](./task2_misc/) | [`test.sh`](./task2_misc/test.sh) | Test script for `/dev/counter` and `/proc/counter_info` |
 | [`task2_misc/`](./task2_misc/) | [`counter_driver.o`](./task2_misc/counter_driver.o), [`counter_driver.mod`](./task2_misc/counter_driver.mod), [`counter_driver.mod.c`](./task2_misc/counter_driver.mod.c), [`counter_driver.mod.o`](./task2_misc/counter_driver.mod.o), [`modules.order`](./task2_misc/modules.order), [`Module.symvers`](./task2_misc/Module.symvers) | Kbuild build artifacts generated by `make` |
 | [`report/`](./report/) | [`Assignment_1.pdf`](./report/Assignment_1.pdf) | Formal technical report (12 pages) with architecture, design analysis, test evidence and theory answers |
+
 ---
+
 ## 🔬 Assignment 02 – Sensor Monitoring System (SMS)
 
 ### 1. Architectural Overview & State Machine Flow
